@@ -34,7 +34,7 @@ However, if you install Consul on your host, you can use the CLI interact with t
 
 If you want to start a Consul cluster on a single host to experiment with clustering dynamics (replication, leader election), here is the recommended way to start a 3 node cluster. 
 
-We're **not** going to start the first node in bootstrap mode because we want it as a stable IP for the others to join the cluster. 
+We're **not** going to start the first node in bootstrap mode because we want it as a stable IP for the others to join the cluster. Since we need to restart the bootstrap node, it may get a different IP, and it's much easier set up a cluster when you have a single IP to join with.
 
 	$ docker run -d --name node1 -h node1 progrium/consul -server
 
@@ -42,7 +42,7 @@ We can get the container's internal IP by inspecting the container. We'll put it
 
 	$ JOIN_IP="$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' node1)"
 
-Then we'll start `node2`, which we'll run as the bootstrap (forced leader) node, and tell it to join `node1` using `$JOIN_IP`:
+Then we'll start `node2`, which we'll run in bootstrap (forced leader) mode, and tell it to join `node1` using `$JOIN_IP`:
 
 	$ docker run -d --name node2 -h node2 progrium/consul -server -bootstrap -join $JOIN_IP
 
@@ -61,14 +61,14 @@ We now have a real cluster running on a single host. We haven't published any po
 
 Now we can interact with the cluster on those published ports and, if you want, play with killing, adding, and restarting  nodes to see how the cluster handles it.
 
-#### Running real Consul cluster in a production environment
+#### Running a real Consul cluster in a production environment
 
 Setting up a real cluster on separate hosts is very similar to our single host cluster setup process, but with a few differences:
 
- * We assume it's going to use a private network between hosts. Each host should have an IP on this private network
+ * We assume there is a private network between hosts. Each host should have an IP on this private network
  * We're going to pass this private IP to Consul via the `-advertise` flag
- * We're going to publish all ports, including the internal Consul ports (8300, 8301, 8302), specifically to this IP
- * We set up a volume mount at `/data` for disk persistence. As an example, we'll bind mount `/mnt` on the host
+ * We're going to publish all ports, including internal Consul ports (8300, 8301, 8302), on this IP
+ * We set up a volume at `/data` for persistence. As an example, we'll bind mount `/mnt` from the host
 
 Assuming we're on a host with a private IP of 10.0.1.1, we can start the first host agent:
 
@@ -117,7 +117,9 @@ It also assumes DNS is a primary means of service discovery for your entire syst
 
 Although you can extend this image to add configuration files to define services and checks, this container was designed for environments where services and checks can be configured at runtime via the HTTP API. 
 
-It's recommended you keep your check logic simple, such as using inline `curl` or `ping` commands. Otherwise, keep in mind the default shell is `ash`. 
+It's recommended you keep your check logic simple, such as using inline `curl` or `ping` commands. Otherwise, keep in mind the default shell is `ash`.
+
+If you absolutely need to customize startup configuration, you can extend this image by making a new Dockerfile based on this one and having a `config` directory containing config JSON files. They will be added to the image you build via ONBUILD hooks. 
 
 ## Sponsor
 
