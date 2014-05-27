@@ -10,6 +10,7 @@ ADD ./config /config/
 ONBUILD ADD ./config /config/
 
 EXPOSE 8300 8301 8302 8400 8500 53/udp
+VOLUME ["/data"]
 
 ENTRYPOINT ["/bin/consul", "agent", "-config-dir=/config"]
 CMD []

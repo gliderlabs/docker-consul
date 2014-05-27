@@ -4,7 +4,7 @@ This project is a Docker container for [Consul](http://www.consul.io/). It's a s
 
 ## Getting the container
 
-The container is very small (28MB virtual, based on busybox) and available on the Docker Index:
+The container is very small (28MB virtual, based on [Busybox](https://github.com/progrium/busybox)) and available on the Docker Index:
 
 	$ docker pull progrium/consul
 
@@ -63,11 +63,16 @@ Now we can interact with the cluster on those published ports and, if you want, 
 
 #### Running real Consul cluster in a production environment
 
-Setting up a real cluster on separate hosts is very similar to our single host cluster setup process. However, we're going to pass the `-advertise` flag with the machine's external IP. This should be on a private network otherwise more advanced encryption is needed. You'll also need to publish all the ports to this interface, including the internal Consul ports (8300, 8301, 8302).
+Setting up a real cluster on separate hosts is very similar to our single host cluster setup process, but with a few differences:
+
+ * We assume it's going to use a private network between hosts. Each host should have an IP on this private network
+ * We're going to pass this private IP to Consul via the `-advertise` flag
+ * We're going to publish all ports, including the internal Consul ports (8300, 8301, 8302), specifically to this IP
+ * We set up a volume mount at `/data` for disk persistence. As an example, we'll bind mount `/mnt` on the host
 
 Assuming we're on a host with a private IP of 10.0.1.1, we can start the first host agent:
 
-	$ docker run -d -h node1 \
+	$ docker run -d -h node1 -v /mnt:/data \
 		-p 10.0.1.1:8300:8300 \
 		-p 10.0.1.1:8301:8301 \
 		-p 10.0.1.1:8302:8302 \
@@ -78,7 +83,7 @@ Assuming we're on a host with a private IP of 10.0.1.1, we can start the first h
 
 On the second host, we'd run the same thing, but passing `-bootstrap` and a `-join` to the first node's IP. Let's say the private IP for this host is 10.0.1.2:
 
-	$ docker run -d -h node2 \
+	$ docker run -d -h node2 -v /mnt:/data  \
 		-p 10.0.1.2:8300:8300 \
 		-p 10.0.1.2:8301:8301 \
 		-p 10.0.1.2:8302:8302 \
@@ -89,7 +94,7 @@ On the second host, we'd run the same thing, but passing `-bootstrap` and a `-jo
 
 And the third host with an IP of 10.0.1.3:
 
-	$ docker run -d -h node3 \
+	$ docker run -d -h node3 -v /mnt:/data  \
 		-p 10.0.1.3:8300:8300 \
 		-p 10.0.1.3:8301:8301 \
 		-p 10.0.1.3:8302:8302 \
