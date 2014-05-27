@@ -44,7 +44,7 @@ We can get the container's internal IP by inspecting the container. We'll put it
 
 Then we'll start `node2`, which we'll run in bootstrap (forced leader) mode, and tell it to join `node1` using `$JOIN_IP`:
 
-	$ docker run -d --name node2 -h node2 progrium/consul -server -bootstrap -join $JOIN_IP
+	$ docker run -d --name node2 -h node2 progrium/consul -server -join $JOIN_IP -bootstrap
 
 Now we can start `node3`. Very simple:
 
@@ -55,7 +55,7 @@ That's a three node cluster. Notice we've also named the containers after their 
 	$ docker rm -f node2
 	$ docker run -d --name node2 -h node2 progrium/consul -server -join $JOIN_IP
 
-We now have a real cluster running on a single host. We haven't published any ports to access the cluster, but we can use that as an excuse to run a fourth agent node in "client" mode. This means it doesn't participate in the consensus quorum, but can still be used to interact with the cluster.
+We now have a real cluster running on a single host. We haven't published any ports to access the cluster, but we can use that as an excuse to run a fourth agent node in "client" mode (dropping the `-server`). This means it doesn't participate in the consensus quorum, but can still be used to interact with the cluster. It also means it doesn't need disk persistence.
 
 	$ docker run -d -p 8400:8400 -p 8500:8500 -p 8600:53/udp -h node4 progrium/consul -join $JOIN_IP
 
@@ -81,7 +81,7 @@ Assuming we're on a host with a private IP of 10.0.1.1, we can start the first h
 		-p 10.0.1.1:8600:53/udp \
 		progrium/consul -server -advertise 10.0.1.1
 
-On the second host, we'd run the same thing, but passing `-bootstrap` and a `-join` to the first node's IP. Let's say the private IP for this host is 10.0.1.2:
+On the second host, we'd run the same thing, but passing a `-join` to the first node's IP and `-bootstrap`. Let's say the private IP for this host is 10.0.1.2:
 
 	$ docker run -d -h node2 -v /mnt:/data  \
 		-p 10.0.1.2:8300:8300 \
@@ -90,7 +90,7 @@ On the second host, we'd run the same thing, but passing `-bootstrap` and a `-jo
 		-p 10.0.1.2:8400:8400 \
 		-p 10.0.1.2:8500:8500 \
 		-p 10.0.1.2:8600:53/udp \
-		progrium/consul -server -advertise 10.0.1.2 -bootstrap -join 10.0.1.1
+		progrium/consul -server -advertise 10.0.1.2 -join 10.0.1.1 -bootstrap
 
 And the third host with an IP of 10.0.1.3:
 
@@ -111,7 +111,7 @@ Once the third host is running, you want to go back to the second host, kill the
 
 This container was designed assuming you'll be using it for DNS on your other contianers. So it listens on port 53 inside the container to be more compatible and accessible via linking. It also has DNS recursive queries enabled, using the Google nameservers.
 
-It also assumes DNS is a primary means of service discovery for your entire system. It uses `cluster` as the top level domain instead of `consul` just as a more general/accurate naming ontology.
+It also assumes DNS is a primary means of service discovery for your entire system. It uses `cluster` as the top level domain instead of `consul` just as a more general / accurate naming ontology.
 
 #### Runtime Configuration
 
@@ -119,7 +119,7 @@ Although you can extend this image to add configuration files to define services
 
 It's recommended you keep your check logic simple, such as using inline `curl` or `ping` commands. Otherwise, keep in mind the default shell is `ash`.
 
-If you absolutely need to customize startup configuration, you can extend this image by making a new Dockerfile based on this one and having a `config` directory containing config JSON files. They will be added to the image you build via ONBUILD hooks. 
+If you absolutely need to customize startup configuration, you can extend this image by making a new Dockerfile based on this one and having a `config` directory containing config JSON files. They will be added to the image you build via ONBUILD hooks. You can also add packages with `opkg`. See [docs on the Busybox image]((https://github.com/progrium/busybox)) for more info.
 
 ## Sponsor
 
