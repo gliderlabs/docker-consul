@@ -109,7 +109,7 @@ Once the third host is running, you want to go back to the second host, kill the
 
 #### DNS
 
-This container was designed assuming you'll be using it for DNS on your other contianers. So it listens on port 53 inside the container to be more compatible and accessible via linking. It also has DNS recursive queries enabled, using the Google nameservers.
+This container was designed assuming you'll be using it for DNS on your other containers. So it listens on port 53 inside the container to be more compatible and accessible via linking. It also has DNS recursive queries enabled, using the Google nameservers.
 
 It also assumes DNS is a primary means of service discovery for your entire system. It uses `cluster` as the top level domain instead of `consul` just as a more general / accurate naming ontology.
 
