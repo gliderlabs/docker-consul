@@ -113,9 +113,9 @@ Once the third host is running, you want to go back to the second host, kill the
 
 ## Opinionated Configuration
 
-#### Convenience runner command
+#### Runner command
 
-Since the `docker run` command to start in production is so long, a command is available to generate this for you. Running with `cmd:run <advertise-ip>[::<join-ip>] [docker run args...]` will output an opinionated, but customizable `docker run` command you can run in a subshell. For example:
+Since the `docker run` command to start in production is so long, a command is available to generate this for you. Running with `cmd:run <advertise-ip>[::<join-ip>] [docker-run-args...]` will output an opinionated, but customizable `docker run` command you can run in a subshell. For example:
 
 	$ docker run --rm progrium/consul cmd:run 10.0.1.1 -d
 
@@ -151,7 +151,9 @@ Outputs:
 		-d -v /mnt:/data \
 		progrium/consul -server -advertise 10.0.1.1 -join 10.0.1.2
 
-You can simply wrap the cmd:run output in a subshell. Here is what you can run to see it work without detached mode:
+You may notice it lets you only bootstrap or join, not both. Using `cmd:run` assumes you will be bootstrapping with the first node, then restarting it to join another node once you've reached expected nodes. I realize this whole process is confusing, but Consul 0.4.0 will have this automated. 
+
+You can simply wrap the `cmd:run` output in a subshell. Run this to see it work:
 
 	$ $(docker run --rm progrium/consul cmd:run 127.0.0.1)
 
@@ -159,7 +161,7 @@ You can simply wrap the cmd:run output in a subshell. Here is what you can run t
 
 This container was designed assuming you'll be using it for DNS on your other containers. So it listens on port 53 inside the container to be more compatible and accessible via linking. It also has DNS recursive queries enabled, using the Google 8.8.8.8 nameserver.
 
-When running with `cmd:run`, it publishes the DNS port on the Docker bridge. You can use this with the `--dns` flag in `docker run`, or better yet, use it with the Docker daemon. Here is a command you can run on Ubuntu systems that will tell Docker to use the bridge IP for DNS, otherwise use Google DNS, and use `service.consul` as the search domain. 
+When running with `cmd:run`, it publishes the DNS port on the Docker bridge. You can use this with the `--dns` flag in `docker run`, or better yet, use it with the Docker daemon options. Here is a command you can run on Ubuntu systems that will tell Docker to use the bridge IP for DNS, otherwise use Google DNS, and use `service.consul` as the search domain. 
 
 	$ echo "DOCKER_OPTS='--dns 172.17.42.1 --dns 8.8.8.8 --dns-search service.consul'" >> /etc/default/docker
 
