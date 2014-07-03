@@ -4,7 +4,7 @@ This project is a Docker container for [Consul](http://www.consul.io/). It's a s
 
 ## Getting the container
 
-The container is very small (28MB virtual, based on [Busybox](https://github.com/progrium/busybox)) and available on the Docker Index:
+The container is very small (26MB virtual, based on [Busybox](https://github.com/progrium/busybox)) and available on the Docker Index:
 
 	$ docker pull progrium/consul
 
@@ -24,7 +24,7 @@ Our recommended interface is HTTP using curl:
 
 We can also use dig to interact with the DNS interface:
 
-	$ dig @0.0.0.0 -p 8600 node1.node.cluster
+	$ dig @0.0.0.0 -p 8600 node1.node.consul
 
 However, if you install Consul on your host, you can use the CLI interact with the containerized Consul Agent:
 
@@ -158,6 +158,10 @@ You can simply wrap the cmd:run output in a subshell. Here is what you can run t
 #### DNS
 
 This container was designed assuming you'll be using it for DNS on your other containers. So it listens on port 53 inside the container to be more compatible and accessible via linking. It also has DNS recursive queries enabled, using the Google 8.8.8.8 nameserver.
+
+When running with `cmd:run`, it publishes the DNS port on the Docker bridge. You can use this with the `--dns` flag in `docker run`, or better yet, use it with the Docker daemon. Here is a command you can run on Ubuntu systems that will tell Docker to use the bridge IP for DNS, otherwise use Google DNS, and use `service.consul` as the search domain. 
+
+	$ echo "DOCKER_OPTS='--dns 172.17.42.1 --dns 8.8.8.8 --dns-search service.consul'" >> /etc/default/docker
 
 #### Runtime Configuration
 
