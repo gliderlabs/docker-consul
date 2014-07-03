@@ -113,17 +113,57 @@ Once the third host is running, you want to go back to the second host, kill the
 
 ## Opinionated Configuration
 
+#### Convenience runner command
+
+Since the `docker run` command to start in production is so long, a command is available to generate this for you. Running with `cmd:run <advertise-ip>[::<join-ip>] [docker run args...]` will output an opinionated, but customizable `docker run` command you can run in a subshell. For example:
+
+	$ docker run --rm progrium/consul cmd:run 10.0.1.1 -d
+
+Outputs:
+
+	eval docker run --name consul -h $HOSTNAME 	\
+		-p 10.0.1.1:8300:8300 \
+		-p 10.0.1.1:8301:8301 \
+		-p 10.0.1.1:8301:8301/udp \
+		-p 10.0.1.1:8302:8302 \
+		-p 10.0.1.1:8302:8302/udp \
+		-p 10.0.1.1:8400:8400 \
+		-p 10.0.1.1:8500:8500 \
+		-p 172.17.42.1:53:53/udp \
+		-d 	\
+		progrium/consul -server -advertise 10.0.1.1 -bootstrap	
+
+By design, it will set the hostname of the container to your host hostname, it will name the container `consul` (though this can be overridden), it will bind port 53 to the Docker bridge, and the rest of the ports on the advertise IP. If no join IP is provided, it runs in bootstrap mode. Here is another example, specifying a join IP and setting more docker run arguments:
+
+	$ docker run --rm progrium/consul cmd:run 10.0.1.1::10.0.1.2 -d -v /mnt:/data
+
+Outputs:
+
+	eval docker run --name consul -h $HOSTNAME 	\
+		-p 10.0.1.1:8300:8300 \
+		-p 10.0.1.1:8301:8301 \
+		-p 10.0.1.1:8301:8301/udp \
+		-p 10.0.1.1:8302:8302 \
+		-p 10.0.1.1:8302:8302/udp \
+		-p 10.0.1.1:8400:8400 \
+		-p 10.0.1.1:8500:8500 \
+		-p 172.17.42.1:53:53/udp \
+		-d -v /mnt:/data \
+		progrium/consul -server -advertise 10.0.1.1 -join 10.0.1.2
+
+You can simply wrap the cmd:run output in a subshell. Here is what you can run to see it work without detached mode:
+
+	$ $(docker run --rm progrium/consul cmd:run 127.0.0.1)
+
 #### DNS
 
-This container was designed assuming you'll be using it for DNS on your other containers. So it listens on port 53 inside the container to be more compatible and accessible via linking. It also has DNS recursive queries enabled, using the Google nameservers.
-
-It also assumes DNS is a primary means of service discovery for your entire system. It uses `cluster` as the top level domain instead of `consul` just as a more general / accurate naming ontology.
+This container was designed assuming you'll be using it for DNS on your other containers. So it listens on port 53 inside the container to be more compatible and accessible via linking. It also has DNS recursive queries enabled, using the Google 8.8.8.8 nameserver.
 
 #### Runtime Configuration
 
 Although you can extend this image to add configuration files to define services and checks, this container was designed for environments where services and checks can be configured at runtime via the HTTP API. 
 
-It's recommended you keep your check logic simple, such as using inline `curl` or `ping` commands. Otherwise, keep in mind the default shell is `ash`.
+It's recommended you keep your check logic simple, such as using inline `curl` or `ping` commands. Otherwise, keep in mind the default shell is Bash, but you're running in Busybox.
 
 If you absolutely need to customize startup configuration, you can extend this image by making a new Dockerfile based on this one and having a `config` directory containing config JSON files. They will be added to the image you build via ONBUILD hooks. You can also add packages with `opkg`. See [docs on the Busybox image](https://github.com/progrium/busybox) for more info.
 
