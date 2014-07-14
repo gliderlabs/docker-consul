@@ -111,6 +111,8 @@ And the third host with an IP of 10.0.1.3:
 
 Once the third host is running, you want to go back to the second host, kill the container, and run it again just as before but without the `-bootstrap` flag. You'd then have a full cluster running in production on a private network.
 
+There is currently an issue when you restart the bootstrap node as a new container with the same publish IP that will cause heartbeats to fail and the node will flap. This is because of an ARP table cache problem. If you wait about 3-5 minutes because starting again, or use a different IP, it should work fine. This issue will be dissolved with the "auto-bootstrapping" capability of Consul 0.4.0.
+
 ## Opinionated Configuration
 
 #### Runner command
@@ -151,11 +153,11 @@ Outputs:
 		-d -v /mnt:/data \
 		progrium/consul -server -advertise 10.0.1.1 -join 10.0.1.2
 
-You may notice it lets you only bootstrap or join, not both. Using `cmd:run` assumes you will be bootstrapping with the first node, then restarting it to join another node once you've reached expected nodes. I realize this whole process is confusing, but Consul 0.4.0 will have this automated. 
+You may notice it lets you only bootstrap or join, not both. Using `cmd:run` assumes you will be bootstrapping with the first node, then restarting it to join another node once you've reached expected nodes. I realize this bootstrap process is confusing, but Consul 0.4.0 will have this automated. 
 
 You can simply wrap the `cmd:run` output in a subshell. Run this to see it work:
 
-	$ $(docker run --rm progrium/consul cmd:run 127.0.0.1)
+	$ $(docker run --rm progrium/consul cmd:run 127.0.0.1 -it)
 
 #### DNS
 
