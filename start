@@ -1,6 +1,7 @@
 #!/bin/bash
 
 readonly IMAGE="progrium/consul"
+readonly ID="$(echo $RANDOM | md5sum | cut -b 1-4)"
 
 cmd-run() {
 	local ip_def="$1"; shift
@@ -17,7 +18,7 @@ cmd-run() {
 
 	bridge_ip="$(ip ro | grep ^default | awk '{print $3}')"
 	cat <<EOF
-eval docker run --name consul -h \$HOSTNAME \
+eval docker run --name consul -h \$HOSTNAME-$ID \
 	-p $external_ip:8300:8300 \
 	-p $external_ip:8301:8301 \
 	-p $external_ip:8301:8301/udp \
