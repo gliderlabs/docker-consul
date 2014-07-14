@@ -111,7 +111,7 @@ And the third host with an IP of 10.0.1.3:
 
 Once the third host is running, you want to go back to the second host, kill the container, and run it again just as before but without the `-bootstrap` flag. You'd then have a full cluster running in production on a private network.
 
-There is currently an issue when you restart the bootstrap node as a new container with the same publish IP that will cause heartbeats to fail and the node will flap. This is because of an ARP table cache problem. If you wait about 3-5 minutes because starting again, or use a different IP, it should work fine. This issue will be dissolved with the "auto-bootstrapping" capability of Consul 0.4.0.
+There is currently an issue when you restart the bootstrap node as a new container with the same publish IP that will cause heartbeats to fail and the node will flap. This is because of an ARP table cache problem. If you wait about 3-5 minutes before starting again, it should work fine. This issue will be dissolved with the "auto-bootstrapping" capability of Consul 0.4.0.
 
 ## Opinionated Configuration
 
