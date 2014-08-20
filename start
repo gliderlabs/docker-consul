@@ -10,7 +10,7 @@ cmd-run() {
 
 	IFS=':' read external_ip join_ip <<< "${ip_def/::/:}"
 	if [[ -z "$join_ip" ]]; then
-		run_mode="-bootstrap"
+		run_mode="-bootstrap-expect 3"
 	else
 		run_mode="-join $join_ip"
 	fi

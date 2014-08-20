@@ -1,10 +1,10 @@
 FROM 		progrium/busybox 
 MAINTAINER 	Jeff Lindsay <progrium@gmail.com>
 
-ADD https://dl.bintray.com/mitchellh/consul/0.3.0_linux_amd64.zip /tmp/consul.zip
+ADD https://dl.bintray.com/mitchellh/consul/0.3.1_linux_amd64.zip /tmp/consul.zip
 RUN cd /bin && unzip /tmp/consul.zip && chmod +x /bin/consul && rm /tmp/consul.zip
 
-ADD https://dl.bintray.com/mitchellh/consul/0.3.0_web_ui.zip /tmp/webui.zip
+ADD https://dl.bintray.com/mitchellh/consul/0.3.1_web_ui.zip /tmp/webui.zip
 RUN cd /tmp && unzip /tmp/webui.zip && mv dist /ui && rm /tmp/webui.zip
 
 RUN opkg-install curl bash
