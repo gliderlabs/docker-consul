@@ -1,6 +1,7 @@
 #!/bin/bash
 
 readonly IMAGE="progrium/consul"
+readonly EXPECT="${EXPECT:-3}"
 
 cmd-run() {
 	local ip_def="$1"; shift
@@ -10,7 +11,7 @@ cmd-run() {
 
 	IFS=':' read external_ip join_ip <<< "${ip_def/::/:}"
 	if [[ -z "$join_ip" ]]; then
-		run_mode="-bootstrap-expect 3"
+		run_mode="-bootstrap-expect $EXPECT"
 	else
 		run_mode="-join $join_ip"
 	fi
