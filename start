@@ -15,7 +15,7 @@ cmd-run() {
 		run_mode="-join $join_ip"
 	fi
 
-	bridge_ip="$(ip ro | grep ^default | awk '{print $3}')"
+	bridge_ip="$(ip ro | awk '/^default/{print $3}')"
 	cat <<EOF
 eval docker run --name consul -h \$HOSTNAME \
 	-p $external_ip:8300:8300 \
@@ -35,7 +35,7 @@ main() {
 	set -eo pipefail
 	case "$1" in
 	cmd:run)            shift; cmd-run $@;;
-	*)                  /bin/consul agent -config-dir=/config $@;;
+	*)                  exec /bin/consul agent -config-dir=/config $@;;
 	esac
 }
 
