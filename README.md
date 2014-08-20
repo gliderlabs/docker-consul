@@ -170,11 +170,11 @@ It's recommended you keep your check logic simple, such as using inline `curl` o
 
 If you absolutely need to customize startup configuration, you can extend this image by making a new Dockerfile based on this one and having a `config` directory containing config JSON files. They will be added to the image you build via ONBUILD hooks. You can also add packages with `opkg`. See [docs on the Busybox image](https://github.com/progrium/busybox) for more info.
 
-## Issue when quickly restarting a node using the same IP
+## Quickly restarting a node using the same IP issue
 
 When testing a cluster scenario, you may kill a container and restart it again on the same host and see that it has trouble re-joining the cluster.
 
-There is an issue when you restart a node as a new container with the same published ports that will cause heartbeats to fail and the node will flap. This is an ARP table caching problem. If you wait about 3 minutes before starting again, it should work fine. You can also manually reset the cache if you know how (I don't).
+There is an issue when you restart a node as a new container with the same published ports that will cause heartbeats to fail and the node will flap. This is an ARP table caching problem. If you wait about 3 minutes before starting again, it should work fine. You can also manually reset the cache.
 
 ## Sponsor
 
