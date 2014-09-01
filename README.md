@@ -4,7 +4,7 @@ This project is a Docker container for [Consul](http://www.consul.io/). It's a s
 
 ## Getting the container
 
-The container is very small (26MB virtual, based on [Busybox](https://github.com/progrium/busybox)) and available on the Docker Index:
+The container is very small (50MB virtual, based on [Busybox](https://github.com/progrium/busybox)) and available on the Docker Index:
 
 	$ docker pull progrium/consul
 
@@ -108,7 +108,7 @@ And the third host with an IP of 10.0.1.3:
 
 That's it! Once this last node connects, it will bootstrap into a cluster. You now have a working cluster running in production on a private network.
 
-## Opinionated Configuration
+## Special Features
 
 #### Runner command
 
@@ -153,6 +153,30 @@ You may notice it lets you only run with bootstrap-expect or join, not both. Usi
 To use this convenience, you simply wrap the `cmd:run` output in a subshell. Run this to see it work:
 
 	$ $(docker run --rm progrium/consul cmd:run 127.0.0.1 -it)
+
+#### Health checking with Docker
+
+Consul lets you specify a shell script to run for health checks, similar to Nagios. As a container, those scripts run inside this container environment which is a minimal Busybox environment with bash and curl. For some, this is fairly limiting, so I've added some built-in convenience scripts to properly do health checking in a Docker system. 
+
+These all require you to mount the Docker socket with `-v /var/run/docker.sock:/var/run/docker.sock` when you run the Consul container.
+
+##### Using check-http
+
+	check-http <container-id> <port> <path> [curl-args...]
+
+This utility performs `curl` based HTTP health checking given a container ID or name, an internal port (what the service is actually listening on inside the container) and a path. You can optionally provide extra arguments to `curl`. 
+
+The HTTP request is done in a separate ephemeral container that is attached to the target container's network namespace. The utility automatically determines the internal Docker IP to run the request against. A successful request will output the response headers into Consul. An unsuccessful request will output the reason the request failed and set the check to critical. By default, `curl` runs with `--retry 2` to cover local transient errors. 
+
+##### Using check-cmd
+
+	check-cmd <container-id> <port> <command...>
+
+This utility performs the specified command in a separate ephemeral container based on the target container's image that is attached to that container's network namespace. Very often, this is expected to be a health check script, but can be anything that can be run as a command on this container image. For convenience, an environment variable `SERVICE_ADDR` is set with the internal Docker IP and port specified here. 
+
+##### Using docker
+
+The above health check utilities require the Docker binary, so it's already built-in to the container. If neither of the above fit your needs, and the container environment is too limiting, you can perform Docker operations directly to perform a containerized health check.
 
 #### DNS
 

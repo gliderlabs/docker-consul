@@ -1,0 +1,13 @@
+#!/bin/bash
+
+main() {
+	local container_id="$1"; shift
+	local port="$1"; shift
+	local cmd="$@"
+
+	local image="$(docker inspect -f "{{.Config.Image}}" $container_id)"
+	local ip="$(docker inspect -f "{{.NetworkSettings.IPAddress}}" $container_id)"
+	docker run --rm --net container:$container_id -e "SERVICE_ADDR=$ip:$port" $image "$cmd"
+}
+
+main $@
