@@ -158,7 +158,7 @@ To use this convenience, you simply wrap the `cmd:run` output in a subshell. Run
 
 Consul lets you specify a shell script to run for health checks, similar to Nagios. As a container, those scripts run inside this container environment which is a minimal Busybox environment with bash and curl. For some, this is fairly limiting, so I've added some built-in convenience scripts to properly do health checking in a Docker system. 
 
-These all require you to mount the Docker socket with `-v /var/run/docker.sock:/var/run/docker.sock` when you run the Consul container.
+These all require you to mount the host's Docker socket to `/var/run/docker.sock` when you run the Consul container.
 
 ##### Using check-http
 
@@ -176,7 +176,7 @@ This utility performs the specified command in a separate ephemeral container ba
 
 ##### Using docker
 
-The above health check utilities require the Docker binary, so it's already built-in to the container. If neither of the above fit your needs, and the container environment is too limiting, you can perform Docker operations directly to perform a containerized health check.
+The above health check utilities require the Docker binary, so it's already built-in to the container. If neither of the above fit your needs, and the container environment is too limiting, you can perform Docker operations directly to perform any containerized health check.
 
 #### DNS
 
