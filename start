@@ -7,13 +7,18 @@ cmd-run() {
 	local ip_def="$1"; shift
 	local args="$@"
 
-	declare external_ip join_ip bridge_ip run_mode
+	declare external_ip join_ip bridge_ip run_mode client_flag server_flag
 
-	IFS=':' read external_ip join_ip <<< "${ip_def/::/:}"
+	IFS=':' read external_ip join_ip client_flag <<< "${ip_def//::/:}"
+
 	if [[ -z "$join_ip" ]]; then
 		run_mode="-bootstrap-expect $EXPECT"
 	else
 		run_mode="-join $join_ip"
+	fi
+
+	if [[ -z "$client_flag" ]]; then
+		server_flag="-server"
 	fi
 
 	bridge_ip="$(ip ro | awk '/^default/{print $3}')"
@@ -28,7 +33,7 @@ eval docker run --name consul -h \$HOSTNAME \
 	-p $external_ip:8500:8500 \
 	-p $bridge_ip:53:53/udp \
 	$args \
-	$IMAGE -server -advertise $external_ip $run_mode
+	$IMAGE $server_flag -advertise $external_ip $run_mode
 EOF
 }
 

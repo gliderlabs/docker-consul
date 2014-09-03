@@ -112,7 +112,7 @@ That's it! Once this last node connects, it will bootstrap into a cluster. You n
 
 #### Runner command
 
-Since the `docker run` command to start in production is so long, a command is available to generate this for you. Running with `cmd:run <advertise-ip>[::<join-ip>] [docker-run-args...]` will output an opinionated, but customizable `docker run` command you can run in a subshell. For example:
+Since the `docker run` command to start in production is so long, a command is available to generate this for you. Running with `cmd:run <advertise-ip>[::<join-ip>[::<client-flag>]] [docker-run-args...]` will output an opinionated, but customizable `docker run` command you can run in a subshell. For example:
 
 	$ docker run --rm progrium/consul cmd:run 10.0.1.1 -d
 
@@ -153,6 +153,16 @@ You may notice it lets you only run with bootstrap-expect or join, not both. Usi
 To use this convenience, you simply wrap the `cmd:run` output in a subshell. Run this to see it work:
 
 	$ $(docker run --rm progrium/consul cmd:run 127.0.0.1 -it)
+
+##### Client flag
+
+Client nodes allow you to keep growing your cluster without impacting the performance of the underlying gossip protocol (they proxy requests to one of the server nodes and so are stateless).
+
+To boot a client node using the runner command, append the string `::client` onto the `<advertise-ip>::<join-ip>` argument.  For example:
+
+	$ docker run --rm progrium/consul cmd:run 10.0.1.4::10.0.1.2::client -d
+
+Would create the same output as above but without the `-server` consul argument.
 
 #### Health checking with Docker
 
