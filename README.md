@@ -112,7 +112,7 @@ That's it! Once this last node connects, it will bootstrap into a cluster. You n
 
 #### Runner command
 
-Since the `docker run` command to start in production is so long, a command is available to generate this for you. Running with `cmd:run <advertise-ip>[::<join-ip>[::<client-flag>]] [docker-run-args...]` will output an opinionated, but customizable `docker run` command you can run in a subshell. For example:
+Since the `docker run` command to start in production is so long, a command is available to generate this for you. Running with `cmd:run <advertise-ip>[::<join-ip>[::client]] [docker-run-args...]` will output an opinionated, but customizable `docker run` command you can run in a subshell. For example:
 
 	$ docker run --rm progrium/consul cmd:run 10.0.1.1 -d
 
