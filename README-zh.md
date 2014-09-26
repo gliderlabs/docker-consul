@@ -177,47 +177,53 @@ Consul允许你通过指定一个shell脚本来检测服务的健康状态， �
 
 	check-http <container-id> <port> <path> [curl-args...]
 
+这个工具执行了一个基于 `curl`  的 HTTP 的监控检查。需要的参数有container Id 或者 名字, 一个内部端口(service正在监听的在container内部的端口) 和 path. 你可以附近传递一些 `curl` 的参数.
 
-This utility performs `curl` based HTTP health checking given a container ID or name, an internal port (what the service is actually listening on inside the container) and a path. You can optionally provide extra arguments to `curl`. 
+HTTP requst 会在一个短暂的container里执行， 这个container会挂到目标container的网络命名空间上。这个命令会自动找到目标container的内部IP 并对起发起请求。一个成功的请求会返回相应的头部信息给Consul。一个不成功的会输出为啥失败，并且把检测结果设为有问题。默认的 `curl` 会以 `--retry 2` 作为参数运行，避免本地暂时性的错误.
 
-The HTTP request is done in a separate ephemeral container that is attached to the target container's network namespace. The utility automatically determines the internal Docker IP to run the request against. A successful request will output the response headers into Consul. An unsuccessful request will output the reason the request failed and set the check to critical. By default, `curl` runs with `--retry 2` to cover local transient errors. 
 
-##### Using check-cmd
+##### 使用 check-cmd
 
 	check-cmd <container-id> <port> <command...>
 
-This utility performs the specified command in a separate ephemeral container based on the target container's image that is attached to that container's network namespace. Very often, this is expected to be a health check script, but can be anything that can be run as a command on this container image. For convenience, an environment variable `SERVICE_ADDR` is set with the internal Docker IP and port specified here. 
+这个工具会在一个短暂存在的container里运行指定的命里， 这个container基于目标container的image，并且会挂到目标container的网络命名空间上。 （译注： 目标container通常会比busybox强大，这样可以解决busybox过于简单， 很多命令不能运行的窘境， 我设想的更好的方式应该是可以指定一个运行command的image，这样在目标container不能满足运行测试脚本的情况下， 可以做个新的符合条件的 image)。 通常我们会通过这个方法运行一个检测脚本， 但是理论上这样是可以运行在这个image的container上可以运行的任意的脚本的。 为了方便一个 `SERVICE_ADDR` 的环境变量被赋值为Docker的内部IP还有PORD。
 
-##### Using docker
+##### 使用 docker
 
-The above health check utilities require the Docker binary, so it's already built-in to the container. If neither of the above fit your needs, and the container environment is too limiting, you can perform Docker operations directly to perform any containerized health check.
+上述的检测健康的工具都需要二进制的Docker，所以二进制的docker已经被包含到了container里。如果上述两种都不能满足你的需求，而container的环境有过于简陋， 你可以直接使用docker 命令直接运行容器话的检测。（译注：这里没看明白， 日后补充）
 
 #### DNS
 
-This container was designed assuming you'll be using it for DNS on your other containers. So it listens on port 53 inside the container to be more compatible and accessible via linking. It also has DNS recursive queries enabled, using the Google 8.8.8.8 nameserver.
+设计这个container的时候假设你会使用这个container作为其他container的DNS。因此这个container会监听53端口，通过linking可以访问的到。container内的DNS还使用了谷歌的8.8.8.8作为递归的域名查询。
 
-When running with `cmd:run`, it publishes the DNS port on the Docker bridge. You can use this with the `--dns` flag in `docker run`, or better yet, use it with the Docker daemon options. Here is a command you can run on Ubuntu systems that will tell Docker to use the bridge IP for DNS, otherwise use Google DNS, and use `service.consul` as the search domain. 
+当运行 `cmd:run`  的时候， 他会把DNS端口暴露到Docker bridge上。你可以通过在启动docker 的时候使用 `--dns` 指定， 或者更好的方式是通过Docker deamon option的方式使用。下面是你可以运行在ubuntu系统上的， 告诉docker使用docker bridge IP 做DNS，否者使用谷歌的DNS，并且使用 `service.consul` 作为搜索域.
 
 	$ echo "DOCKER_OPTS='--dns 172.17.42.1 --dns 8.8.8.8 --dns-search service.consul'" >> /etc/default/docker
 
-#### Runtime Configuration
+#### 运行时配置
 
-Although you can extend this image to add configuration files to define services and checks, this container was designed for environments where services and checks can be configured at runtime via the HTTP API. 
+虽然你可以扩着这个image来定义service或者检测，这个container本身就被设计为可以通过API在运行是定义service和检测的。
 
-It's recommended you keep your check logic simple, such as using inline `curl` or `ping` commands. Otherwise, keep in mind the default shell is Bash, but you're running in Busybox.
+我们建议你尽量让你的检测逻辑简单，可以通过简单的 `curl`  或者  `ping` 命令执行。除此之外， 记住默认的shell是运行在busybox里的Bash。
 
-If you absolutely need to customize startup configuration, you can extend this image by making a new Dockerfile based on this one and having a `config` directory containing config JSON files. They will be added to the image you build via ONBUILD hooks. You can also add packages with `opkg`. See [docs on the Busybox image](https://github.com/progrium/busybox) for more info.
+如果你一定需要个性化的启动脚本， 你可以写一个新的Dockerfile扩展目前的这个image， 添加一个 `config` 目录存放JSON的配置文件。（译注： consul会看 /etc/confd/conf.d/ 或者通过 -conf-dir 指定他要看的目录）这些会通过 ONBUILD 狗子加到你要build的系统里。 你好可以通过 `opkg` 添加新的包。参阅[docs on the Busybox image](https://github.com/progrium/busybox) 获得更多信息.
 
-## Quickly restarting a node using the same IP issue
 
-When testing a cluster scenario, you may kill a container and restart it again on the same host and see that it has trouble re-joining the cluster.
+## 快速重启一个节点，不改变IP地址
 
-There is an issue when you restart a node as a new container with the same published ports that will cause heartbeats to fail and the node will flap. This is an ARP table caching problem. If you wait about 3 minutes before starting again, it should work fine. You can also manually reset the cache.
+在测试一个cluster的时候， 你通常需要kill掉一个container再重启， 这时候会发现要让这个节点重新加入cluster会有问题。
 
-## Sponsor
+在你作为一个新的container重启一个节点的时候并且暴露相同的端口的时候会造成心跳检测失败。这是一个ARP表缓存的问题。如果你等上3分钟左右再重启就没有问题了。 你也可以手动清空ARP表的缓存。（译注： 查看ARP `arp -n` 清除ARP cache `ip -s -s neigh flush all`）
 
-This project was made possible thanks to [DigitalOcean](http://digitalocean.com).
+## 赞助商
+
+感谢[DigitalOcean](http://digitalocean.com)促使这个项目成功
 
 ## License
 
 BSD
+
+## 翻译
+
+Ting Wang tting.wang#gmail.com
+
