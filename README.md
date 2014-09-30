@@ -67,7 +67,7 @@ Setting up a real cluster on separate hosts is very similar to our single host c
  * We're going to publish all ports, including internal Consul ports (8300, 8301, 8302), on this IP
  * We set up a volume at `/data` for persistence. As an example, we'll bind mount `/mnt` from the host
 
-Assuming we're on a host with a private IP of 10.0.1.1, we can start the first host agent:
+Assuming we're on a host with a private IP of 10.0.1.1 and the IP of docker bridge docker0 is 172.17.42.1 we can start the first host agent:
 
 	$ docker run -d -h node1 -v /mnt:/data \
 		-p 10.0.1.1:8300:8300 \
@@ -77,7 +77,7 @@ Assuming we're on a host with a private IP of 10.0.1.1, we can start the first h
 		-p 10.0.1.1:8302:8302/udp \
 		-p 10.0.1.1:8400:8400 \
 		-p 10.0.1.1:8500:8500 \
-		-p 10.0.1.1:8600:53/udp \
+		-p 172.17.42.1:53:53/udp \
 		progrium/consul -server -advertise 10.0.1.1 -bootstrap-expect 3
 
 On the second host, we'd run the same thing, but passing a `-join` to the first node's IP. Let's say the private IP for this host is 10.0.1.2:
@@ -90,7 +90,7 @@ On the second host, we'd run the same thing, but passing a `-join` to the first 
 		-p 10.0.1.2:8302:8302/udp \
 		-p 10.0.1.2:8400:8400 \
 		-p 10.0.1.2:8500:8500 \
-		-p 10.0.1.2:8600:53/udp \
+		-p 172.17.42.1:53:53/udp \
 		progrium/consul -server -advertise 10.0.1.2 -join 10.0.1.1
 
 And the third host with an IP of 10.0.1.3:
@@ -103,7 +103,7 @@ And the third host with an IP of 10.0.1.3:
 		-p 10.0.1.3:8302:8302/udp \
 		-p 10.0.1.3:8400:8400 \
 		-p 10.0.1.3:8500:8500 \
-		-p 10.0.1.3:8600:53/udp \
+		-p 172.17.42.1:53:53/udp \
 		progrium/consul -server -advertise 10.0.1.3 -join 10.0.1.1
 
 That's it! Once this last node connects, it will bootstrap into a cluster. You now have a working cluster running in production on a private network.
