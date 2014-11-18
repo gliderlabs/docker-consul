@@ -200,6 +200,10 @@ If you're using [boot2docker](http://boot2docker.io/) on OS/X, rather than an Ub
 
 	$ boot2docker ssh sudo "ash -c \"echo EXTRA_ARGS=\'--dns 172.17.42.1 --dns $(scutil --dns | awk -F ': ' '/nameserver/{print $2}' | head -1) --dns-search service.consul\' > /var/lib/boot2docker/profile\""
 
+With those extra options in place, within a Docker container, you have the appropriate entries automatically set in the `/etc/resolv.conf` file. To test it out, start a Docker container that has the `dig` utility installed (this example uses [aanand/docker-dnsutils](https://registry.hub.docker.com/u/aanand/docker-dnsutils/) which is the Ubuntu image with dnsutils installed).
+
+	$ docker run --rm aanand/docker-dnsutils dig -t SRV consul +search
+
 #### Runtime Configuration
 
 Although you can extend this image to add configuration files to define services and checks, this container was designed for environments where services and checks can be configured at runtime via the HTTP API. 
