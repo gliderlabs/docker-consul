@@ -196,6 +196,10 @@ When running with `cmd:run`, it publishes the DNS port on the Docker bridge. You
 
 	$ echo "DOCKER_OPTS='--dns 172.17.42.1 --dns 8.8.8.8 --dns-search service.consul'" >> /etc/default/docker
 
+If you're using [boot2docker](http://boot2docker.io/) on OS/X, rather than an Ubuntu host, it has a Tiny Core Linux VM running the docker containers. Use this command to set the extra Docker daemon options (as of boot2docker v1.3.1), which also uses the first DNS name server that your OS/X machine uses for name resolution outside of the boot2docker world.
+
+	$ boot2docker ssh sudo "ash -c \"echo EXTRA_ARGS=\'--dns 172.17.42.1 --dns $(scutil --dns | awk -F ': ' '/nameserver/{print $2}' | head -1) --dns-search service.consul\' > /var/lib/boot2docker/profile\""
+
 #### Runtime Configuration
 
 Although you can extend this image to add configuration files to define services and checks, this container was designed for environments where services and checks can be configured at runtime via the HTTP API. 
