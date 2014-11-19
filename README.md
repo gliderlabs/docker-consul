@@ -40,7 +40,7 @@ Here we start the first node not with `-bootstrap`, but with `-bootstrap-expect 
 
 We can get the container's internal IP by inspecting the container. We'll put it in the env var `JOIN_IP`.
 
-	$ JOIN_IP="$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' node1)"
+	$ JOIN_IP="$(docker inspect -f '{{.NetworkSettings.IPAddress}}' node1)"
 
 Then we'll start `node2` and tell it to join `node1` using `$JOIN_IP`:
 
@@ -54,7 +54,7 @@ We now have a real three node cluster running on a single host. Notice we've als
 
 We haven't published any ports to access the cluster, but we can use that as an excuse to run a fourth agent node in "client" mode (dropping the `-server`). This means it doesn't participate in the consensus quorum, but can still be used to interact with the cluster. It also means it doesn't need disk persistence.
 
-	$ docker run -d -p 8400:8400 -p 8500:8500 -p 8600:53/udp -h node4 progrium/consul -join $JOIN_IP
+	$ docker run -d -p 8400:8400 -p 8500:8500 -p 8600:53/udp --name node4 -h node4 progrium/consul -join $JOIN_IP
 
 Now we can interact with the cluster on those published ports and, if you want, play with killing, adding, and restarting nodes to see how the cluster handles it.
 
