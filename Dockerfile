@@ -12,15 +12,17 @@ RUN chmod +x /bin/docker
 
 RUN opkg-install curl bash
 
-ADD ./config /config/
+RUN mkdir /config
 ONBUILD ADD ./config /config/
 
+ADD ./consul_config.json /etc/consul.json
 ADD ./start /bin/start
 ADD ./check-http /bin/check-http
 ADD ./check-cmd /bin/check-cmd
 
 EXPOSE 8300 8301 8301/udp 8302 8302/udp 8400 8500 53/udp
 VOLUME ["/data"]
+VOLUME ["/config"]
 
 ENV SHELL /bin/bash
 

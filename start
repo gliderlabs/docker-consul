@@ -41,7 +41,7 @@ main() {
 	set -eo pipefail
 	case "$1" in
 	cmd:run)            shift; cmd-run $@;;
-	*)                  exec /bin/consul agent -config-dir=/config $@;;
+	*)                  exec /bin/consul agent -config-file=/etc/consul.json -config-dir=/config $@;;
 	esac
 }
 

@@ -206,11 +206,15 @@ With those extra options in place, within a Docker container, you have the appro
 
 #### Runtime Configuration
 
-Although you can extend this image to add configuration files to define services and checks, this container was designed for environments where services and checks can be configured at runtime via the HTTP API. 
+This container was designed for environments where services and checks can be configured at runtime via the HTTP API. 
 
 It's recommended you keep your check logic simple, such as using inline `curl` or `ping` commands. Otherwise, keep in mind the default shell is Bash, but you're running in Busybox.
 
-If you absolutely need to customize startup configuration, you can extend this image by making a new Dockerfile based on this one and having a `config` directory containing config JSON files. They will be added to the image you build via ONBUILD hooks. You can also add packages with `opkg`. See [docs on the Busybox image](https://github.com/progrium/busybox) for more info.
+If you absolutely need to customize startup configuration, you can:
+
+* We set up a volume at `/config` where [service](http://www.consul.io/docs/agent/services.html) and [check](http://www.consul.io/docs/agent/checks.html) definitions can be placed.  Launch your instance with `-v /my/consol/config:/config`.
+
+* extend this image by making a new Dockerfile based on this one and having a `/config` directory containing config JSON files. They will be added to the image you build via ONBUILD hooks.  You can also add packages with `opkg`. See [docs on the Busybox image](https://github.com/progrium/busybox) for more info.
 
 ## Quickly restarting a node using the same IP issue
 
