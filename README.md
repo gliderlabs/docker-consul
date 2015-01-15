@@ -16,6 +16,10 @@ If you just want to run a single instance of Consul Agent to try out its functio
 
 	$ docker run -p 8400:8400 -p 8500:8500 -p 8600:53/udp -h node1 progrium/consul -server -bootstrap
 
+The [Web UI](http://www.consul.io/intro/getting-started/ui.html) can be enabled by adding the `-ui-dir` flag:
+
+	$ docker run -p 8400:8400 -p 8500:8500 -p 8600:53/udp -h node1 progrium/consul -server -bootstrap -ui-dir /ui
+
 We publish 8400 (RPC), 8500 (HTTP), and 8600 (DNS) so you can try all three interfaces. We also give it a hostname of `node1`. Setting the container hostname is the intended way to name the Consul Agent node. 
 
 Our recommended interface is HTTP using curl:
