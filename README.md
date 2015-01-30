@@ -116,55 +116,86 @@ That's it! Once this last node connects, it will bootstrap into a cluster. You n
 
 #### Runner command
 
-Since the `docker run` command to start in production is so long, a command is available to generate this for you. Running with `cmd:run <advertise-ip>[::<join-ip>[::client]] [docker-run-args...]` will output an opinionated, but customizable `docker run` command you can run in a subshell. For example:
+Since the `docker run` command to start in production is so long, a command is available to generate this for you. Running with `cmd:run -h` will output help instructions for a customizable `docker run` command you can run in a subshell. For example:
 
-	$ docker run --rm progrium/consul cmd:run 10.0.1.1 -d
+	$ docker run --rm progrium/consul cmd:run -a 10.0.1.1 -- -d
 
 Outputs:
 
 	eval docker run --name consul -h $HOSTNAME 	\
-		-p 10.0.1.1:8300:8300 \
-		-p 10.0.1.1:8301:8301 \
-		-p 10.0.1.1:8301:8301/udp \
-		-p 10.0.1.1:8302:8302 \
-		-p 10.0.1.1:8302:8302/udp \
-		-p 10.0.1.1:8400:8400 \
-		-p 10.0.1.1:8500:8500 \
+		-p 8300:8300 \
+		-p 8301:8301 \
+		-p 8301:8301/udp \
+		-p 8302:8302 \
+		-p 8302:8302/udp \
+		-p 8400:8400 \
+		-p 8500:8500 \
 		-p 172.17.42.1:53:53/udp \
 		-d 	\
 		progrium/consul -server -advertise 10.0.1.1 -bootstrap-expect 3
 
-By design, it will set the hostname of the container to your host hostname, it will name the container `consul` (though this can be overridden), it will bind port 53 to the Docker bridge, and the rest of the ports on the advertise IP. If no join IP is provided, it runs in `-bootstrap-expect` mode with a default of 3 expected peers. Here is another example, specifying a join IP and setting more docker run arguments:
+By design, it will set the hostname of the container to your host hostname, it will name the container `consul` (though this can be overridden), it will bind port 53 to the Docker bridge, and the rest of the ports will listen on all interfaces. If no join IP is provided, it runs in `-bootstrap-expect` mode with a default of 3 expected peers. Here is another example, specifying a join IP and setting more docker run arguments:
 
-	$ docker run --rm progrium/consul cmd:run 10.0.1.1::10.0.1.2 -d -v /mnt:/data
+	$ docker run --rm progrium/consul cmd:run -a 10.0.1.1 -j 10.0.1.2 -- -d -v /mnt:/data
 
 Outputs:
 
 	eval docker run --name consul -h $HOSTNAME 	\
-		-p 10.0.1.1:8300:8300 \
-		-p 10.0.1.1:8301:8301 \
-		-p 10.0.1.1:8301:8301/udp \
-		-p 10.0.1.1:8302:8302 \
-		-p 10.0.1.1:8302:8302/udp \
-		-p 10.0.1.1:8400:8400 \
-		-p 10.0.1.1:8500:8500 \
+		-p 8300:8300 \
+		-p 8301:8301 \
+		-p 8301:8301/udp \
+		-p 8302:8302 \
+		-p 8302:8302/udp \
+		-p 8400:8400 \
+		-p 8500:8500 \
 		-p 172.17.42.1:53:53/udp \
 		-d -v /mnt:/data \
 		progrium/consul -server -advertise 10.0.1.1 -join 10.0.1.2
 
 You may notice it lets you only run with bootstrap-expect or join, not both. Using `cmd:run` assumes you will be bootstrapping with the first node and expecting 3 nodes. You can change the expected peers before bootstrap by setting the `EXPECT` environment variable.
 
+You can join multiple servers like this:
+
+
+	$ docker run --rm progrium/consul cmd:run -a 10.0.1.1 -j 10.0.1.2,10.0.1.3,10.0.1.4 -- -d -v /mnt:/data
+
 To use this convenience, you simply wrap the `cmd:run` output in a subshell. Run this to see it work:
 
-	$ $(docker run --rm progrium/consul cmd:run 127.0.0.1 -it)
+	$ $(docker run --rm progrium/consul cmd:run -a 127.0.0.1 -- -it)
+
+##### Listen IP
+
+You can set a fixed IP for consul to listen to by using `-l`. For example:
+
+	$ docker run --rm progrium/consul cmd:run -a 10.0.1.1 -l 10.0.1.1 -j 10.0.1.2 -- -d -v /mnt:/data
+
+Outputs:
+
+    eval docker run --name consul -h $HOSTNAME  \
+        -p 10.0.1.1:8300:8300 \
+        -p 10.0.1.1:8301:8301 \
+        -p 10.0.1.1:8301:8301/udp \
+        -p 10.0.1.1:8302:8302 \
+        -p 10.0.1.1:8302:8302/udp \
+        -p 10.0.1.1:8400:8400 \
+        -p 10.0.1.1:8500:8500 \
+        -p 172.17.42.1:53:53/udp \
+        -d -v /mnt:/data \
+        progrium/consul -server -advertise 10.0.1.1 -bootstrap-expect 3
+
+###### DNS Listen IP
+
+By default it publishes DNS port on the Docker bridge so it is accessible from your other dockerized services. You can change this by using the `-d` option:
+
+	$ docker run --rm progrium/consul cmd:run -a 10.0.1.4 -d 127.0.0.1 -c -- -d
 
 ##### Client flag
 
 Client nodes allow you to keep growing your cluster without impacting the performance of the underlying gossip protocol (they proxy requests to one of the server nodes and so are stateless).
 
-To boot a client node using the runner command, append the string `::client` onto the `<advertise-ip>::<join-ip>` argument.  For example:
+To boot a client node using the runner command, use the flag `-c`.  For example:
 
-	$ docker run --rm progrium/consul cmd:run 10.0.1.4::10.0.1.2::client -d
+	$ docker run --rm progrium/consul cmd:run -a 10.0.1.4 -j 10.0.1.2 -c -- -d
 
 Would create the same output as above but without the `-server` consul argument.
 
@@ -196,7 +227,7 @@ The above health check utilities require the Docker binary, so it's already buil
 
 This container was designed assuming you'll be using it for DNS on your other containers. So it listens on port 53 inside the container to be more compatible and accessible via linking. It also has DNS recursive queries enabled, using the Google 8.8.8.8 nameserver.
 
-When running with `cmd:run`, it publishes the DNS port on the Docker bridge. You can use this with the `--dns` flag in `docker run`, or better yet, use it with the Docker daemon options. Here is a command you can run on Ubuntu systems that will tell Docker to use the bridge IP for DNS, otherwise use Google DNS, and use `service.consul` as the search domain. 
+When running with `cmd:run`, it publishes the DNS port on the Docker bridge by default. You can use this with the `--dns` flag in `docker run`, or use the `-d` with cmd:run, or better yet, use it with the Docker daemon options. Here is a command you can run on Ubuntu systems that will tell Docker to use the bridge IP for DNS, otherwise use Google DNS, and use `service.consul` as the search domain. 
 
 	$ echo "DOCKER_OPTS='--dns 172.17.42.1 --dns 8.8.8.8 --dns-search service.consul'" >> /etc/default/docker
 

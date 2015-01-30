@@ -4,45 +4,92 @@ readonly IMAGE="progrium/consul"
 readonly EXPECT="${EXPECT:-3}"
 
 cmd-run() {
-	local ip_def="$1"; shift
-	local args="$@"
+    while getopts "a:d:e:j:u:l:ch" opts; do
+        case ${opts} in
+            "a") advertise_ip="${OPTARG}" ;;
+            "c") client_flag="client" ;;
+            "d") dns_ip="${OPTARG}:" ;;
+            "h") showhelp ;;
+            "j") join_ip="${OPTARG}" ;;
+            "l") listen_ip="${OPTARG}:" ;;
+            "u") ui_dir="${OPTARG}" ;;
+        esac
+    done
 
-	declare external_ip join_ip bridge_ip run_mode client_flag server_flag
+    shift $((OPTIND-1))
+    docker_args=$@
 
-	IFS=':' read external_ip join_ip client_flag <<< "${ip_def//::/:}"
+    if [[ -z "$advertise_ip" ]]; then
+        echo "Advertise option [-a] is mandatory."
+        echo "Please, set an advertise ip"
+        exit 1
+    fi
 
-	if [[ -z "$join_ip" ]]; then
-		run_mode="-bootstrap-expect $EXPECT"
-	else
-		run_mode="-join $join_ip"
-	fi
+    if [[ -z "$join_ip" ]]; then
+        run_mode="-bootstrap-expect $EXPECT"
+    else
+        OIFS=$IFS
+        IFS=,
+        for ip in $join_ip; do
+            run_mode="$run_mode -join $ip"
+        done
+        IFS=$OIFS
+    fi
 
-	if [[ -z "$client_flag" ]]; then
-		server_flag="-server"
-	fi
+    if [[ -z "$client_flag" ]]; then
+        server_flag="-server"
+    fi
 
-	bridge_ip="$(ip ro | awk '/^default/{print $3}')"
-	cat <<EOF
+    if [[ -z "$dns_ip" ]]; then
+        dns_ip="$(ip ro | awk '/^default/{print $3}'):"
+    fi
+
+    if [[ ! -z "$ui_dir" ]]; then
+        start_ui="-ui-dir $ui_dir"
+    fi
+
+    cat <<EOF
 eval docker run --name consul -h \$HOSTNAME \
-	-p $external_ip:8300:8300 \
-	-p $external_ip:8301:8301 \
-	-p $external_ip:8301:8301/udp \
-	-p $external_ip:8302:8302 \
-	-p $external_ip:8302:8302/udp \
-	-p $external_ip:8400:8400 \
-	-p $external_ip:8500:8500 \
-	-p $bridge_ip:53:53/udp \
-	$args \
-	$IMAGE $server_flag -advertise $external_ip $run_mode
+    -p ${listen_ip}8300:8300 \
+    -p ${listen_ip}8301:8301 \
+    -p ${listen_ip}8301:8301/udp \
+    -p ${listen_ip}8302:8302 \
+    -p ${listen_ip}8302:8302/udp \
+    -p ${listen_ip}8400:8400 \
+    -p ${listen_ip}8500:8500 \
+    -p ${dns_ip}53:53/udp \
+    $docker_args \
+    $IMAGE $server_flag -advertise $advertise_ip $run_mode $start_ui
 EOF
 }
 
 main() {
-	set -eo pipefail
-	case "$1" in
-	cmd:run)            shift; cmd-run $@;;
-	*)                  exec /bin/consul agent -config-dir=/config $@;;
-	esac
+    set -eo pipefail
+    case "$1" in
+    cmd:run)            shift; cmd-run $@;;
+    *)                  exec /bin/consul agent -config-dir=/config $@;;
+    esac
+}
+
+showhelp() {
+    echo -e "
+Usage: cmd:run -a <ip> [-c|-d <ip>|-h|-j <ip>[,<ip>...]|-l <ip>|-u <dir>] [-- docker-run-args...]
+    -a <ip> \tAdvertise IP address: Which IP should use to advertise
+                to other consul servers.
+    -c \t\tClient flag. If set, consul will run as client.
+                This means it will not store any data (ideally for gui)
+    -d <ip> \tDNS listen IP address: Which IP should listen to serve DNS request.
+                [Default: Docker Gateway]
+    -h, \tThis help.
+    -j <ip> \tJoin IP address: The IP address this consul will use to join the cluster.
+                If not set, will run as standalone. You can join to multiple servers
+                by separating each ip with a comma.
+    -l <ip> \tListen IP: Which IP should listen to. [Default: 0.0.0.0]
+    -u <dir> \tEnable UI access and set which directory the ui is located [Default: /ui]
+"
+exit 0
 }
 
 main "$@"
+
+
