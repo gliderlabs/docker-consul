@@ -6,5 +6,5 @@
 		"dns": 53
 	},
 	"recursor": "8.8.8.8",
-	"check_update_interval": "0s"
+	"disable_update_check": true
 }
