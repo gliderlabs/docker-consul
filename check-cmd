@@ -7,7 +7,7 @@ main() {
 
 	local image="$(docker inspect -f "{{.Config.Image}}" $container_id)"
 	local ip="$(docker inspect -f "{{.NetworkSettings.IPAddress}}" $container_id)"
-	docker run --rm --net container:$container_id -e "SERVICE_ADDR=$ip:$port" $image "$cmd"
+	docker run --rm --net container:$container_id -e "SERVICE_ADDR=$ip:$port" $image $cmd
 }
 
 main $@
