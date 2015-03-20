@@ -10,7 +10,10 @@ RUN mkdir /ui && cd /ui && unzip /tmp/webui.zip && rm /tmp/webui.zip && mv dist/
 ADD https://get.docker.io/builds/Linux/x86_64/docker-1.5.0 /bin/docker
 RUN chmod +x /bin/docker
 
-RUN opkg-install curl bash
+RUN opkg-install curl bash ca-certificates
+
+RUN cat /etc/ssl/certs/*.crt > /etc/ssl/certs/ca-certificates.crt && \
+    sed -i -r '/^#.+/d' /etc/ssl/certs/ca-certificates.crt
 
 ADD ./config /config/
 ONBUILD ADD ./config /config/
