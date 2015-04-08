@@ -22,7 +22,7 @@ ADD ./start /bin/start
 ADD ./check-http /bin/check-http
 ADD ./check-cmd /bin/check-cmd
 
-EXPOSE 8300 8301 8301/udp 8302 8302/udp 8400 8500 53/udp
+EXPOSE 8300 8301 8301/udp 8302 8302/udp 8400 8500 53 53/udp
 VOLUME ["/data"]
 
 ENV SHELL /bin/bash
