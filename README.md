@@ -30,7 +30,7 @@ We can also use dig to interact with the DNS interface:
 
 	$ dig @0.0.0.0 -p 8600 node1.node.consul
 
-However, if you install Consul on your host, you can use the CLI interact with the containerized Consul Agent:
+However, if you install Consul on your host, you can use the CLI to interact with the containerized Consul Agent:
 
 	$ consul members
 
@@ -216,7 +216,7 @@ It's recommended you keep your check logic simple, such as using inline `curl` o
 
 If you absolutely need to customize startup configuration, you can extend this image by making a new Dockerfile based on this one and having a `config` directory containing config JSON files. They will be added to the image you build via ONBUILD hooks. You can also add packages with `opkg`. See [docs on the Busybox image](https://github.com/progrium/busybox) for more info.
 
-## Quickly restarting a node using the same IP issue
+## Issue with quickly restarting a node using the same IP
 
 When testing a cluster scenario, you may kill a container and restart it again on the same host and see that it has trouble re-joining the cluster.
 
