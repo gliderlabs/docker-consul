@@ -1,6 +1,5 @@
 
 build:
-	docker build -t consul .
-
-tag:
-	docker tag consul progrium/consul
+	make -C consul
+	make -C consul-agent
+	make -C consul-server
