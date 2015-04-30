@@ -1,7 +1,6 @@
 #!/bin/bash
 
 readonly IMAGE="progrium/consul"
-readonly EXPECT="${EXPECT:-3}"
 
 cmd-run() {
 	local ip_def="$1"; shift
@@ -23,7 +22,7 @@ cmd-run() {
 
 	bridge_ip="$(ip ro | awk '/^default/{print $3}')"
 	cat <<EOF
-eval docker run --name consul -h \$HOSTNAME \
+eval docker run --name consul -h $CONSUL_HOSTNAME \
 	-p $external_ip:8300:8300 \
 	-p $external_ip:8301:8301 \
 	-p $external_ip:8301:8301/udp \
@@ -34,7 +33,7 @@ eval docker run --name consul -h \$HOSTNAME \
 	-p $bridge_ip:53:53 \
 	-p $bridge_ip:53:53/udp \
 	$args \
-	$IMAGE $server_flag -advertise $external_ip $run_mode
+	$IMAGE $server_flag -advertise $external_ip -dc $DC $run_mode
 EOF
 }
 

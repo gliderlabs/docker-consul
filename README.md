@@ -152,7 +152,7 @@ Outputs:
 		-d -v /mnt:/data \
 		progrium/consul -server -advertise 10.0.1.1 -join 10.0.1.2
 
-You may notice it lets you only run with bootstrap-expect or join, not both. Using `cmd:run` assumes you will be bootstrapping with the first node and expecting 3 nodes. You can change the expected peers before bootstrap by setting the `EXPECT` environment variable.
+You may notice it lets you only run with bootstrap-expect or join, not both. Using `cmd:run` assumes you will be bootstrapping with the first node and expecting 3 nodes. You can change the expected peers before bootstrap by setting the `EXPECT` environment variable (e.g., by `docker run --env='EXPECT=1' ...`).
 
 To use this convenience, you simply wrap the `cmd:run` output in a subshell. Run this to see it work:
 
@@ -167,6 +167,23 @@ To boot a client node using the runner command, append the string `::client` ont
 	$ docker run --rm progrium/consul cmd:run 10.0.1.4::10.0.1.2::client -d
 
 Would create the same output as above but without the `-server` consul argument.
+
+##### Additional customization
+
+There are several other additional customization points available, which are defined as `ENV` variables at the end of the `DOCKERFILE`. Currently available are:
+
+  - `EXPECT`: specifies the expected number of consul server nodes in case of bootstrapping. The default value is `3`, but you can set this value to `1` for testing environments.
+  - `DC`: specifies the datacenter the consul agent is associated with. The default value is `dc1`.
+  - `CONSUL_HOSTNAME`: specifies the hostname used for the created consul container. The default is to use the hostname of the machine the `docker run` command is executed on, but in case of remote execution of this command you might want to override this name.
+
+For example:
+
+	$ docker run --rm \
+	             --env="EXPECT=1" \
+	             --env="DC=my_datacenter" \
+	             --env="CONSUL_HOSTNAME=my_hostname" \
+	             progrium/consul \
+	             cmd:run 10.0.1.4::10.0.1.2 -d
 
 #### Health checking with Docker
 
