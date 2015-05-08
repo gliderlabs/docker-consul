@@ -38,11 +38,37 @@ eval docker run --name consul -h \$HOSTNAME \
 EOF
 }
 
+#
+# Start agent, mimicking the -recursor option by modifying the default consul.json file.
+# This option is missing in v0.5 of consul.
+#
+function start-agent() {
+        local recursors
+        declare -a arguments
+
+        while [ $# -gt 0 ] ; do
+                argument="$1"; shift
+                if [ "$argument" == "-recursor" ] ; then
+                        [ -z "$recursors" ] && recursors="\"$1\"" || recursors="$recursors,\"$1\""
+                        shift
+                else
+                        arguments+=("$argument")
+                fi
+        done
+
+	if [ -n "$recursors" ] ; then
+		echo "INFO: changing the recursors in the default /config/consul.json" >&2
+		sed -i -e "s/\"recursor.*/\"recursors\" : [ $recursors ],/" /config/consul.json
+	fi
+
+	exec /bin/consul agent -config-dir=/config "${arguments[@]}"
+}
+
 main() {
 	set -eo pipefail
 	case "$1" in
-	cmd:run)            shift; cmd-run $@;;
-	*)                  exec /bin/consul agent -config-dir=/config $@;;
+	cmd:run)            shift; cmd-run "$@";;
+	*)                  start-agent "$@";;
 	esac
 }
 
