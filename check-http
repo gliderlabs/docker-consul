@@ -9,7 +9,7 @@ main() {
 	local opts="$@"
 	
 	local ip="$(docker inspect -f "{{.NetworkSettings.IPAddress}}" $container_id)"
-  local containerport = "$(docker inspect --format=\"{{(index (index .NetworkSettings.Ports \"$port/tcp\") 0).HostPort}}\" $container_id}"
+  local containerport="$(docker inspect --format=\"{{(index (index .NetworkSettings.Ports \"$port/tcp\") 0).HostPort}}\" $container_id}"
 	local curl_cmd="curl \
 		--silent \
 		--show-error \
