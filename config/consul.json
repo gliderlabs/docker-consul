@@ -6,5 +6,6 @@
 		"dns": 53
 	},
 	"recursor": "8.8.8.8",
-	"disable_update_check": true
+	"disable_update_check": true,
+	"leave_on_terminate": true
 }
