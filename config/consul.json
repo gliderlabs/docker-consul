@@ -3,8 +3,8 @@
 	"ui_dir": "/ui",
 	"client_addr": "0.0.0.0",
 	"ports": {
-		"dns": 53
+		"dns": 8600
 	},
-	"recursor": "8.8.8.8",
+	"recursor": "10.200.16.2",
 	"disable_update_check": true
 }
