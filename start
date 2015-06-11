@@ -1,49 +1,5 @@
 #!/bin/bash
 
-readonly IMAGE="progrium/consul"
-readonly EXPECT="${EXPECT:-3}"
-
-cmd-run() {
-	local ip_def="$1"; shift
-	local args="$@"
-
-	declare external_ip join_ip bridge_ip run_mode client_flag server_flag
-
-	IFS=':' read external_ip join_ip client_flag <<< "${ip_def//::/:}"
-
-	if [[ -z "$join_ip" ]]; then
-		run_mode="-bootstrap-expect $EXPECT"
-	else
-		run_mode="-join $join_ip"
-	fi
-
-	if [[ -z "$client_flag" ]]; then
-		server_flag="-server"
-	fi
-
-	bridge_ip="$(ip ro | awk '/^default/{print $3}')"
-	cat <<EOF
-eval docker run --name consul -h \$HOSTNAME \
-	-p $external_ip:8300:8300 \
-	-p $external_ip:8301:8301 \
-	-p $external_ip:8301:8301/udp \
-	-p $external_ip:8302:8302 \
-	-p $external_ip:8302:8302/udp \
-	-p $external_ip:8400:8400 \
-	-p $external_ip:8500:8500 \
-	-p $bridge_ip:53:53 \
-	-p $bridge_ip:53:53/udp \
-	$args \
-	$IMAGE $server_flag -advertise $external_ip $run_mode
-EOF
-}
-
-main() {
-	set -eo pipefail
-	case "$1" in
-	cmd:run)            shift; cmd-run $@;;
-	*)                  exec /bin/consul agent -config-dir=/config $@;;
-	esac
-}
-
-main "$@"
+/bin/sh -c "rm -f /data/checks/*" && \
+/bin/sh -c "rm -f /data/services/*" && \
+/bin/consul agent -config-dir=/config "$@"

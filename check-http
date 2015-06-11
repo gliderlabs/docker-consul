@@ -9,15 +9,16 @@ main() {
 	local opts="$@"
 	
 	local ip="$(docker inspect -f "{{.NetworkSettings.IPAddress}}" $container_id)"
-  local containerport="$(docker inspect --format=\"{{(index (index .NetworkSettings.Ports \"$port/tcp\") 0).HostPort}}\" $container_id}"
 	local curl_cmd="curl \
 		--silent \
 		--show-error \
 		--fail \
 		--dump-header /dev/stderr \
 		--retry 2 \
+		--max-time 10 \
 		$opts \
-		http://$ip:$containerport$path > /dev/null"
+		http://$ip:$port$path > /dev/null"
+  
 	docker run --rm --net container:$container_id --entrypoint "/bin/bash" $IMAGE -c "$curl_cmd"
 }
 
