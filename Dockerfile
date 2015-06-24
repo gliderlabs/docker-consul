@@ -1,5 +1,5 @@
 FROM progrium/busybox
-ENV VERSION 0.5.2 
+ENV VERSION 0.5.2
 
 ADD https://dl.bintray.com/mitchellh/consul/${VERSION}_linux_amd64.zip /tmp/consul.zip
 RUN cd /bin && unzip /tmp/consul.zip && chmod +x /bin/consul && rm /tmp/consul.zip

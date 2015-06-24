@@ -1,6 +1,6 @@
 #!/bin/bash
 
-readonly IMAGE="progrium/consul"
+readonly IMAGE="wehkamp/blaze-container-consul"
 
 main() {
 	local container_id="$1"; shift
@@ -9,6 +9,9 @@ main() {
 	local opts="$@"
 	
 	local ip="$(docker inspect -f "{{.NetworkSettings.IPAddress}}" $container_id)"
+  if [[ "$ip" == "" ]]; then
+          local ip="$(hostname)"
+  fi
 	local curl_cmd="curl \
 		--silent \
 		--show-error \
@@ -17,7 +20,7 @@ main() {
 		--retry 2 \
 		--max-time 10 \
 		$opts \
-		http://$ip:$port$path > /dev/null"
+		\"http://$ip:$port$path\" > /dev/null"
   
 	docker run --rm --net container:$container_id --entrypoint "/bin/bash" $IMAGE -c "$curl_cmd"
 }

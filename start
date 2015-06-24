@@ -1,5 +1,9 @@
 #!/bin/bash
+if [[ "$CLEANUP" -eq "true" ]]; then
+  /bin/sh -c "rm -f /data/checks/*" &&
+  /bin/sh -c "rm -f /data/services/*"
+fi
 
-/bin/sh -c "rm -f /data/checks/*" && \
-/bin/sh -c "rm -f /data/services/*" && \
-/bin/consul agent -config-dir=/config "$@"
+NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) 
+
+GOMAXPROCS=$NPROC /bin/consul agent -config-dir=/config "$@"
