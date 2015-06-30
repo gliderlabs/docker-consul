@@ -2,4 +2,4 @@
 
 ## License
 
-BSD
+MIT
