@@ -1,5 +1,7 @@
 #!/bin/bash
 
+readonly IMAGE="wehkamp/blaze-container-consul"
+
 main() {
 	local container_id="$1"; shift
 	local port="$1"; shift
@@ -8,13 +10,9 @@ main() {
 	
 	local ip="$(docker inspect -f "{{.NetworkSettings.IPAddress}}" $container_id)"
   if [[ "$ip" == "" ]]; then
-    if [ -z "$HOSTIP" ]; then
-      local ip="$HOSTIP"
-    else
-      local ip="$(hostname)"
-    fi
+          local ip="$(hostname)"
   fi
-	curl \
+	local curl_cmd="curl \
 		--silent \
 		--show-error \
 		--fail \
@@ -22,7 +20,9 @@ main() {
 		--retry 2 \
 		--max-time 10 \
 		$opts \
-		"http://$ip:$port$path" > /dev/null
+		\"http://$ip:$port$path\" > /dev/null"
+  
+	docker run --rm --net container:$container_id --entrypoint "/bin/bash" $IMAGE -c "$curl_cmd"
 }
 
 main $@
