@@ -1,17 +1,33 @@
-FROM progrium/busybox
+FROM       wehkamp/alpine:3.2 
+
 ENV VERSION 0.5.2
+ENV CONSUL_VERSION v0.5.2-deadlock-patches
 
-ADD https://dl.bintray.com/mitchellh/consul/${VERSION}_linux_amd64.zip /tmp/consul.zip
-RUN cd /bin && unzip /tmp/consul.zip && chmod +x /bin/consul && rm /tmp/consul.zip
+ENV  GOPATH /go
+ENV APPPATH $GOPATH/src/github.com/hashicorp
 
-ADD https://dl.bintray.com/mitchellh/consul/${VERSION}_web_ui.zip /tmp/webui.zip
+WORKDIR $APPPATH
+
+RUN echo http://dl-1.alpinelinux.org/alpine/edge/main > /etc/apk/repositories
+RUN apk add --update -t build-deps go git libc-dev gcc libgcc build-base bash
+
+RUN git clone https://github.com/hashicorp/consul.git
+WORKDIR $APPPATH/consul
+RUN git checkout ${CONSUL_VERSION}
+
+
+RUN make
+
+RUN mv bin/consul /bin/consul
+
+RUN wget -O /tmp/webui.zip https://dl.bintray.com/mitchellh/consul/${VERSION}_web_ui.zip
 RUN mkdir /ui && cd /ui && unzip /tmp/webui.zip && rm /tmp/webui.zip && mv dist/* . && rm -rf dist
 
-ADD https://get.docker.io/builds/Linux/x86_64/docker-1.6.1 /bin/docker
+RUN wget -O /bin/docker https://get.docker.io/builds/Linux/x86_64/docker-1.8.0
 RUN chmod +x /bin/docker
 
-ADD ./config/opkg.conf /etc/opkg.conf
-RUN opkg-install bash ca-certificates curl
+RUN apk del --purge build-deps git go libc-dev gcc libgcc && rm -rf $GOPATH
+RUN apk add bash
 
 RUN cat /etc/ssl/certs/*.crt > /etc/ssl/certs/ca-certificates.crt && \
     sed -i -r '/^#.+/d' /etc/ssl/certs/ca-certificates.crt

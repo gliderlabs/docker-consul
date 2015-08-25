@@ -8,7 +8,7 @@ main() {
 	
 	local ip="$(docker inspect -f "{{.NetworkSettings.IPAddress}}" $container_id)"
   if [[ "$ip" == "" ]]; then
-    if [ -z "$HOSTIP" ]; then
+    if [ ! -z "$HOSTIP" ]; then
       local ip="$HOSTIP"
     else
       local ip="$(hostname)"
