@@ -1,6 +1,6 @@
-FROM       wehkamp/alpine:3.2 
+FROM       wehkamp/alpine:3.2
 
-LABEL container.name="wehkamp/consul-agent:0.5.2"
+LABEL container.name="wehkamp/consul:0.5.2"
 
 ENV VERSION 0.5.2
 ENV CONSUL_VERSION v0.5.2-deadlock-patches
