@@ -10,7 +10,10 @@ ENV APPPATH $GOPATH/src/github.com/hashicorp
 
 WORKDIR $APPPATH
 
-RUN echo http://dl-1.alpinelinux.org/alpine/edge/main > /etc/apk/repositories
+#This below removes all the repo's in the wehkamp/alpine image and replaces it with just the one below.
+#Therefore it can't find certain packages, so for now we comment it.
+#RUN echo http://dl-1.alpinelinux.org/alpine/edge/main > /etc/apk/repositories
+
 RUN apk add --update -t build-deps go git libc-dev gcc libgcc build-base bash
 
 RUN git clone https://github.com/hashicorp/consul.git
