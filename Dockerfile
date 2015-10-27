@@ -28,8 +28,7 @@ RUN git checkout ${CONSUL_VERSION} \
     && sed -i -r '/^#.+/d' /etc/ssl/certs/ca-certificates.crt
 
 RUN apk del --purge build-deps git go libc-dev gcc libgcc \
-    && rm -rf $GOPATH \
-    && apk add bash
+    && rm -rf $GOPATH
 
 ADD ./config /config/
 ONBUILD ADD ./config /config/
