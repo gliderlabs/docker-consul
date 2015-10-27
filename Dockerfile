@@ -18,10 +18,10 @@ RUN make
 
 RUN mv bin/consul /bin/consul
 
-RUN wget -O /tmp/webui.zip https://dl.bintray.com/mitchellh/consul/${VERSION}_web_ui.zip
+RUN wget -q -O /tmp/webui.zip https://dl.bintray.com/mitchellh/consul/${VERSION}_web_ui.zip
 RUN mkdir /ui && cd /ui && unzip /tmp/webui.zip && rm /tmp/webui.zip && mv dist/* . && rm -rf dist
 
-RUN wget -O /bin/docker https://get.docker.io/builds/Linux/x86_64/docker-1.8.0
+RUN wget -q -O /bin/docker https://get.docker.io/builds/Linux/x86_64/docker-1.8.0
 RUN chmod +x /bin/docker
 
 RUN apk del --purge build-deps git go libc-dev gcc libgcc && rm -rf $GOPATH
