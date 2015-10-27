@@ -14,7 +14,7 @@ WORKDIR $APPPATH
 #Therefore it can't find certain packages, so for now we comment it.
 #RUN echo http://dl-1.alpinelinux.org/alpine/edge/main > /etc/apk/repositories
 
-RUN apk add --update -t build-deps go git libc-dev gcc libgcc build-base bash
+RUN apk add --update -t build-deps go git libc-dev gcc libgcc build-base bash curl
 
 RUN git clone https://github.com/hashicorp/consul.git
 WORKDIR $APPPATH/consul
