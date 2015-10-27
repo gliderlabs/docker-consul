@@ -8,27 +8,28 @@ ENV APPPATH $GOPATH/src/github.com/hashicorp
 
 WORKDIR $APPPATH
 
-RUN apk add --update -t build-deps go git libc-dev gcc libgcc build-base bash curl
+RUN apk add --update -t build-deps go git libc-dev gcc libgcc build-base bash curl \
+    && git clone https://github.com/hashicorp/consul.git
 
-RUN git clone https://github.com/hashicorp/consul.git
 WORKDIR $APPPATH/consul
-RUN git checkout ${CONSUL_VERSION}
+RUN git checkout ${CONSUL_VERSION} \
+    && make \
+    && mv bin/consul /bin/consul \
+    && wget -q -O /tmp/webui.zip https://dl.bintray.com/mitchellh/consul/${VERSION}_web_ui.zip \
+    && mkdir /ui \
+    && cd /ui \
+    && unzip /tmp/webui.zip \
+    && rm /tmp/webui.zip \
+    && mv dist/* . \
+    && rm -rf dist \
+    && wget -q -O /bin/docker https://get.docker.io/builds/Linux/x86_64/docker-1.8.0 \
+    && chmod +x /bin/docker \
+    && cat /etc/ssl/certs/*.crt > /etc/ssl/certs/ca-certificates.crt \
+    && sed -i -r '/^#.+/d' /etc/ssl/certs/ca-certificates.crt
 
-RUN make
-
-RUN mv bin/consul /bin/consul
-
-RUN wget -q -O /tmp/webui.zip https://dl.bintray.com/mitchellh/consul/${VERSION}_web_ui.zip
-RUN mkdir /ui && cd /ui && unzip /tmp/webui.zip && rm /tmp/webui.zip && mv dist/* . && rm -rf dist
-
-RUN wget -q -O /bin/docker https://get.docker.io/builds/Linux/x86_64/docker-1.8.0
-RUN chmod +x /bin/docker
-
-RUN apk del --purge build-deps git go libc-dev gcc libgcc && rm -rf $GOPATH
-RUN apk add bash
-
-RUN cat /etc/ssl/certs/*.crt > /etc/ssl/certs/ca-certificates.crt && \
-    sed -i -r '/^#.+/d' /etc/ssl/certs/ca-certificates.crt
+RUN apk del --purge build-deps git go libc-dev gcc libgcc \
+    && rm -rf $GOPATH \
+    && apk add bash
 
 ADD ./config /config/
 ONBUILD ADD ./config /config/
