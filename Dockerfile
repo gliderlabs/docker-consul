@@ -25,9 +25,8 @@ RUN git checkout ${CONSUL_VERSION} \
     && wget -q -O /bin/docker https://get.docker.io/builds/Linux/x86_64/docker-1.8.0 \
     && chmod +x /bin/docker \
     && cat /etc/ssl/certs/*.crt > /etc/ssl/certs/ca-certificates.crt \
-    && sed -i -r '/^#.+/d' /etc/ssl/certs/ca-certificates.crt
-
-RUN apk del --purge build-deps git go libc-dev gcc libgcc \
+    && sed -i -r '/^#.+/d' /etc/ssl/certs/ca-certificates.crt \
+    && apk del --purge build-deps git go libc-dev gcc libgcc \
     && rm -rf $GOPATH \
     # Reinstall bash here because it is purged at this stage \
     && apk add bash
