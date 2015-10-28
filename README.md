@@ -1,9 +1,9 @@
-# Consul in Docker
+# Consul Docker images
 
-Looking for what used to be `progrium/consul`? Look in the `legacy` branch.
+This is Zendesk's customized Docker images for HashiCorp's Consul.
+They're based on [Glider Labs'](https://github.com/gliderlabs/docker-consul)
+original sources.
 
 ## License
 
 MIT
-
-<img src="https://ga-beacon.appspot.com/UA-58928488-2/docker-consul/readme?pixel" />
