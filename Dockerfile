@@ -28,7 +28,9 @@ RUN git checkout ${CONSUL_VERSION} \
     && sed -i -r '/^#.+/d' /etc/ssl/certs/ca-certificates.crt
 
 RUN apk del --purge build-deps git go libc-dev gcc libgcc \
-    && rm -rf $GOPATH
+    && rm -rf $GOPATH \
+    # Reinstall bash here because it is purged at this stage \
+    && apk add bash
 
 ADD ./config /config/
 ONBUILD ADD ./config /config/
