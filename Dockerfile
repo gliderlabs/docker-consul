@@ -8,7 +8,7 @@ ENV APPPATH $GOPATH/src/github.com/hashicorp
 
 WORKDIR $APPPATH
 
-RUN apk add --update -t build-deps go git libc-dev gcc libgcc build-base bash curl \
+RUN apk add --update -t build-deps go git libc-dev gcc libgcc build-base bash \
     && git clone https://github.com/hashicorp/consul.git
 
 WORKDIR $APPPATH/consul
@@ -28,8 +28,8 @@ RUN git checkout ${CONSUL_VERSION} \
     && sed -i -r '/^#.+/d' /etc/ssl/certs/ca-certificates.crt \
     && apk del --purge build-deps git go libc-dev gcc libgcc \
     && rm -rf $GOPATH \
-    # Reinstall bash here because it is purged at this stage \
-    && apk add bash
+    # Reinstall here because the purge \
+    && apk add bash curl
 
 ADD ./config /config/
 ONBUILD ADD ./config /config/
