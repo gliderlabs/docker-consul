@@ -11,8 +11,8 @@ operates.  Check the [Consul
 documentation](https://www.consul.io/docs/agent/options.html) for further
 details on how they operate.
 
-For boolean variables, the values "0", "false", and "n" all translate to
-"false", and "1", "true", and "y" all translate to "true".
+For boolean variables, the values `"0"`, `"false"`, and `"n"` all translate to
+`false`, and `"1"`, `"true"`, and `"y"` all translate to `true`.
 
 * `CONSUL_ACL_DATACENTER`
 * `CONSUL_ACL_DEFAULT_POLICY`
