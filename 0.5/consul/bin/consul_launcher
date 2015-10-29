@@ -1,0 +1,96 @@
+#!/bin/sh
+# vim:syn=sh ts=2 sw=2 et ai
+
+jq_filter="{}"
+
+add_key() {
+  key="$1"
+  val="$2"
+  type="$3"
+
+  case "$type" in
+    string)
+      [ -z "$val" ] && return
+      val="\"${val}\""
+      ;;
+    multi_string)
+      [ -z "$val" ] && return
+      oldIFS=$IFS; IFS=,
+      set -- $val
+      IFS=$oldIFS
+      val=""
+      for i in "$@"; do
+        i="\"${i}\""
+        if [ -z "$val" ]; then
+          val="[$i"
+        else
+          val="${val},${i}"
+        fi
+      done
+      val="${val}]"
+      ;;
+    int)
+      [ -z "$val" ] && return
+      ;;
+    boolean)
+      if [ "$val" = "0" -o "$val" = "false" -o "$val" = "n" -o "$val" = "no" ]; then
+        val=false
+      elif [ "$val" = "1" -o "$val" = "true" -o "$val" = "y" -o "$val" = "yes" ]; then
+        val=true
+      else
+        return
+      fi
+      ;;
+  esac
+
+  jq_filter="${jq_filter} | .${key} = ${val}"
+}
+
+
+add_key acl_datacenter "$CONSUL_ACL_DATACENTER" string
+add_key acl_default_policy "$CONSUL_ACL_DEFAULT_POLICY" string
+add_key acl_down_policy "$CONSUL_ACL_DOWN_POLICY" string
+add_key acl_master_token "$CONSUL_ACL_MASTER_TOKEN" string
+add_key acl_token "$CONSUL_ACL_TOKEN" string
+add_key acl_ttl "$CONSUL_ACL_TTL" string
+add_key advertise_addr "$CONSUL_ADVERTISE_ADDR" string
+add_key advertise_addr_wan "$CONSUL_ADVERTISE_ADDR_WAN" string
+add_key bootstrap_expect "$CONSUL_BOOTSTRAP_EXPECT" int
+add_key ca_file "$CONSUL_TLS_CA_FILE" string
+add_key cert_file "$CONSUL_TLS_CERT_FILE" string
+add_key check_update_interval "$CONSUL_CHECK_UPDATE_INTERVAL" string
+add_key client_addr "$CONSUL_CLIENT_ADDR" string
+add_key data_dir "$CONSUL_DATA_DIR" string
+add_key datacenter "$CONSUL_DATACENTER" string
+add_key disable_remote_exec "$CONSUL_DISABLE_REMOTE_EXEC" boolean
+add_key disable_update_check "$CONSUL_DISABLE_UPDATE_CHECK" boolean
+add_key dns_config.allow_stale "$CONSUL_DNS_ALLOW_STALE" boolean
+add_key dns_config.enable_truncate "$CONSUL_DNS_ENABLE_TRUNCATE" boolean
+add_key dns_config.max_stale "$CONSUL_DNS_MAX_STALE" string
+add_key dns_config.node_ttl "$CONSUL_DNS_NODE_TTL" string
+add_key dns_config.only_passing "$CONSUL_DNS_ONLY_PASSING" boolean
+add_key dns_config.service_ttl "$CONSUL_DNS_SERVICE_TTL" string
+add_key domain "$CONSUL_DOMAIN" boolean
+add_key encrypt "$CONSUL_ENCRYPT" string
+add_key leave_on_terminate "$CONSUL_LEAVE_ON_TERMINATE" boolean
+add_key rejoin_after_leave "$CONSUL_REJOIN_AFTER_LEAVE" boolean
+add_key retry_interval "$CONSUL_RETRY_INTERVAL" string
+add_key retry_interval_wan "$CONSUL_RETRY_INTERVAL_WAN" string
+add_key retry_join "$CONSUL_RETRY_JOIN" multi_string
+add_key retry_join_wan "$CONSUL_RETRY_JOIN_WAN" multi_string
+add_key server "$CONSUL_SERVER" boolean
+add_key server_name "$CONSUL_SERVER_NAME" string
+add_key session_ttl_min "$CONSUL_SESSION_TTL_MIN" string
+add_key skip_leave_on_interrupt "$CONSUL_SKIP_LEAVE_ON_INTERRUPT" boolean
+add_key start_join "$CONSUL_START_JOIN" multi_string
+add_key start_join_wan "$CONSUL_START_JOIN_WAN" multi_string
+add_key statsd_addr "$CONSUL_STATSD_ADDR" string
+add_key statsite_addr "$CONSUL_STATSITE_ADDR" string
+add_key statsite_prefix "$CONSUL_STATSITE_PREFIX" string
+add_key ui_dir "$CONSUL_UI_DIR" string
+add_key verify_incoming "$CONSUL_TLS_VERIFY_INCOMING" boolean
+add_key verify_outgoing "$CONSUL_TLS_VERIFY_OUTGOING" boolean
+add_key verify_server_hostname "$CONSUL_TLS_VERIFY_SERVER_HOSTNAME" boolean
+
+jq -n "${jq_filter}" > /config/config.json
+exec /bin/consul agent -config-dir=/config
