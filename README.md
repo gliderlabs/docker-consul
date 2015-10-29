@@ -1,8 +1,8 @@
 # Consul Docker images
 
-These are Zendesk's customized Docker images for HashiCorp's Consul.
-They're based on [Glider Labs'](https://github.com/gliderlabs/docker-consul)
-original sources.
+These are Zendesk's customized Docker images for HashiCorp's Consul.  They're
+based on [Glider Labs' original
+sources](https://github.com/gliderlabs/docker-consul).
 
 ## Environment variables
 
