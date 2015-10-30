@@ -4,6 +4,20 @@ These are Zendesk's customized Docker images for HashiCorp's Consul.  They're
 based on [Glider Labs' original
 sources](https://github.com/gliderlabs/docker-consul).
 
+## Lock race fixes
+
+This build contains an [important
+fix](https://github.com/hashicorp/consul/compare/master...zendesk:zendesk_0.5.2)
+to some race conditions in `consul lock` in the 0.5.2 upstream release.  Our
+fix has been accepted by Hashicorp, but no new release has been published yet
+that contains it.
+
+## Data persistence
+
+The `/data` directory is now marked as a volume, so that Consul's Raft data can
+be preserved across container restarts.  (Of course, you may always start
+with a clean slate by removing and recreating the container.)
+
 ## Environment variables
 
 The following environment variables can be set to control the way Consul

@@ -1,7 +1,7 @@
 FROM alpine:3.2
 
-ENV CONSUL_VERSION 0.5.2
-ENV CONSUL_SHA256 171cf4074bfca3b1e46112105738985783f19c47f4408377241b868affa9d445
+ENV CONSUL_VERSION 0.5.2-2-g4e53804
+ENV CONSUL_SHA256 acfbbe2d852442dd523416bdd78790d445125ea7f6a6ace0115510b8d94b2ae4
 ENV CONSUL_ACL_DATACENTER ""
 ENV CONSUL_ACL_DEFAULT_POLICY ""
 ENV CONSUL_ACL_DOWN_POLICY ""
@@ -50,13 +50,10 @@ RUN apk --update add curl ca-certificates jq && \
     curl -Ls https://circle-artifacts.com/gh/andyshinn/alpine-pkg-glibc/6/artifacts/0/home/ubuntu/alpine-pkg-glibc/packages/x86_64/glibc-2.21-r2.apk > /tmp/glibc-2.21-r2.apk && \
     apk add --allow-untrusted /tmp/glibc-2.21-r2.apk && \
     rm -rf /tmp/glibc-2.21-r2.apk /var/cache/apk/*
-ADD https://dl.bintray.com/mitchellh/consul/${CONSUL_VERSION}_linux_amd64.zip /tmp/consul.zip
-RUN echo "${CONSUL_SHA256}  /tmp/consul.zip" > /tmp/consul.sha256 \
+ADD https://github.com/zendesk/consul/releases/download/${CONSUL_VERSION}/consul_linux_x86_64 /bin/consul
+RUN echo "${CONSUL_SHA256}  /bin/consul" > /tmp/consul.sha256 \
   && sha256sum -c /tmp/consul.sha256 \
-  && cd /bin \
-  && unzip /tmp/consul.zip \
-  && chmod +x /bin/consul \
-  && rm /tmp/consul.zip
+  && chmod +x /bin/consul
 RUN mkdir /config
 ADD ./bin/consul_launcher /bin/
 
