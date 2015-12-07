@@ -1,0 +1,7 @@
+{
+	"ui_dir": "/ui",
+	"server": true,
+	"dns_config": {
+		"allow_stale": false
+	}
+}
