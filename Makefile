@@ -1,6 +1,6 @@
-VERSION=0.5
+VERSION=0.6
 
 build:
-	make -C $(VERSION)/consul
-	make -C $(VERSION)/consul-agent
-	make -C $(VERSION)/consul-server
+	VERSION=$(VERSION) make -C $(VERSION)/consul
+	VERSION=$(VERSION) make -C $(VERSION)/consul-agent
+	VERSION=$(VERSION) make -C $(VERSION)/consul-server

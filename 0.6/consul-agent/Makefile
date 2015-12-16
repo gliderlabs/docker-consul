@@ -1,3 +1,3 @@
 
 build:
-	docker build -t gliderlabs/consul-agent .
+	docker build -t gliderlabs/consul-agent:$(VERSION) .
