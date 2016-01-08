@@ -1,4 +1,4 @@
-VERSION=0.6
+VERSION=0.6.1
 
 build:
 	VERSION=$(VERSION) make -C $(VERSION)/consul

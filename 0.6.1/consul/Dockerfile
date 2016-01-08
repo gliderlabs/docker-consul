@@ -1,7 +1,7 @@
 FROM alpine:3.2
 
-ENV CONSUL_VERSION 0.6.0
-ENV CONSUL_SHA256 307fa26ae32cb8732aed2b3320ed8daf02c28b50d952cbaae8faf67c79f78847
+ENV CONSUL_VERSION 0.6.1
+ENV CONSUL_SHA256 dbb3c348fdb7cdfc03e5617956b243c594a399733afee323e69ef664cdadb1ac
 
 RUN apk --update add curl ca-certificates && \
     curl -Ls https://circle-artifacts.com/gh/andyshinn/alpine-pkg-glibc/6/artifacts/0/home/ubuntu/alpine-pkg-glibc/packages/x86_64/glibc-2.21-r2.apk > /tmp/glibc-2.21-r2.apk && \
