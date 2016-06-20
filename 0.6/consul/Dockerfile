@@ -4,6 +4,17 @@ ENV CONSUL_VERSION 0.6.4
 ENV CONSUL_SHA256 abdf0e1856292468e2c9971420d73b805e93888e006c76324ae39416edcf0627
 ENV GLIBC_VERSION "2.23-r1"
 
+# Basic build-time metadata as defined at http://label-schema.org
+ARG BUILD_DATE
+ARG VCS_REF
+LABEL org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.license="BSD" \
+      org.label-schema.name="Consul Agent in Docker" \
+      org.label-schema.url="https://hub.docker.com/r/progrium/consul/" \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.vcs-url="https://github.com/gliderlabs/docker-consul.git" \
+      org.label-schema.vcs-type="Git"
+
 RUN apk --update add curl ca-certificates && \
     curl -Ls https://github.com/andyshinn/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk > /tmp/glibc-${GLIBC_VERSION}.apk && \
     apk add --allow-untrusted /tmp/glibc-${GLIBC_VERSION}.apk && \
