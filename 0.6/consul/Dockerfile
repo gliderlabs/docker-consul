@@ -10,7 +10,6 @@ RUN apk --no-cache add curl ca-certificates \
     && cd /bin \
     && unzip /tmp/consul.zip \
     && chmod +x /bin/consul \
-    && rm /tmp/consul.zip \
-    && apk del curl ca-certificates
+    && rm /tmp/consul.zip
 
 ENTRYPOINT ["/bin/consul"]
