@@ -1,7 +1,7 @@
-FROM wehkamp/alpine:3.2
-LABEL container.name="wehkamp/consul:0.6.4"
+FROM wehkamp/alpine:3.4
+LABEL container.name="wehkamp/consul:0.7.1"
 
-ENV CONSUL_VERSION 0.6.4
+ENV CONSUL_VERSION 0.7.1
 
 RUN wget -q -O /tmp/consul.zip https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip \
     && cd /tmp \
@@ -15,14 +15,7 @@ RUN wget -q -O /tmp/webui.zip https://releases.hashicorp.com/consul/${CONSUL_VER
     && unzip /tmp/webui.zip \
     && rm /tmp/webui.zip
 
-RUN apk update && apk add bash ca-certificates curl
-RUN cat /etc/ssl/certs/*.crt > /etc/ssl/certs/ca-certificates.crt && \
-    sed -i -r '/^#.+/d' /etc/ssl/certs/ca-certificates.crt
-
-RUN wget -q -O /bin/docker https://get.docker.io/builds/Linux/x86_64/docker-1.8.0 \
-    && chmod +x /bin/docker \
-    && cat /etc/ssl/certs/*.crt > /etc/ssl/certs/ca-certificates.crt \
-    && sed -i -r '/^#.+/d' /etc/ssl/certs/ca-certificates.crt
+RUN apk update && apk add bash curl
 
 VOLUME ["/config.d"]
 
