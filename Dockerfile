@@ -15,14 +15,7 @@ RUN wget -q -O /tmp/webui.zip https://releases.hashicorp.com/consul/${CONSUL_VER
     && unzip /tmp/webui.zip \
     && rm /tmp/webui.zip
 
-RUN apk update && apk add bash ca-certificates curl
-RUN cat /etc/ssl/certs/*.crt > /etc/ssl/certs/ca-certificates.crt && \
-    sed -i -r '/^#.+/d' /etc/ssl/certs/ca-certificates.crt
-
-RUN wget -q -O /bin/docker https://get.docker.io/builds/Linux/x86_64/docker-1.8.0 \
-    && chmod +x /bin/docker \
-    && cat /etc/ssl/certs/*.crt > /etc/ssl/certs/ca-certificates.crt \
-    && sed -i -r '/^#.+/d' /etc/ssl/certs/ca-certificates.crt
+RUN apk update && apk add bash curl
 
 VOLUME ["/config.d"]
 
