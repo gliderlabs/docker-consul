@@ -1,5 +1,5 @@
 FROM wehkamp/alpine:3.4
-LABEL container.name="wehkamp/consul:0.7.2"
+LABEL container.name="wehkamp/consul:0.7.2-1"
 
 ENV CONSUL_VERSION 0.7.2
 
@@ -15,7 +15,7 @@ RUN wget -q -O /tmp/webui.zip https://releases.hashicorp.com/consul/${CONSUL_VER
     && unzip /tmp/webui.zip \
     && rm /tmp/webui.zip
 
-RUN apk update && apk add bash curl
+RUN apk update && apk add bash curl tini
 
 VOLUME ["/config.d"]
 
@@ -28,5 +28,5 @@ ADD ./start /bin/start
 
 EXPOSE 8300 8301 8301/udp 8302 8302/udp 8400 8500 8600 8600/udp
 
-ENTRYPOINT ["/bin/start"]
+ENTRYPOINT ["tini", "--", "/bin/start"]
 CMD []
