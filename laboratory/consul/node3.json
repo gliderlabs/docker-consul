@@ -1,0 +1,23 @@
+{
+  "data_dir": "/data",
+  "ui_dir": "/ui",
+  "client_addr": "0.0.0.0",
+  "ports": {
+    "dns": 53
+  },
+  "recursor": "8.8.8.8",
+  "disable_update_check": true,
+
+  "service": {
+    "name": "pro_88888_apache",
+    "port": 80,
+    "tags": [
+      "apache",
+      "demonstration"
+    ],
+    "check": {
+      "script": "curl 172.17.0.8:80 > /dev/null 2>&1",
+      "interval": "10s"
+    }
+  }
+}
