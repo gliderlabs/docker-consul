@@ -1,4 +1,5 @@
 {
+  "leave_on_terminate": true,
   "data_dir": "/data",
   "ui_dir": "/ui",
   "client_addr": "0.0.0.0",

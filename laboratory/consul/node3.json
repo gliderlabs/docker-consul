@@ -16,7 +16,7 @@
       "demonstration"
     ],
     "check": {
-      "script": "curl 172.17.0.6:80 > /dev/null 2>&1",
+      "script": "curl 172.17.0.8:80 > /dev/null 2>&1",
       "interval": "10s"
     }
   }
