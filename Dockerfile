@@ -9,11 +9,11 @@ RUN wget -q -O /tmp/consul.zip https://releases.hashicorp.com/consul/${CONSUL_VE
     && mv consul /bin/consul \
     && rm /tmp/consul.zip
 
-RUN wget -q -O /tmp/webui.zip https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_web_ui.zip \
-    && mkdir /ui \
-    && cd /ui \
-    && unzip /tmp/webui.zip \
-    && rm /tmp/webui.zip
+#RUN wget -q -O /tmp/webui.zip https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_web_ui.zip \
+#    && mkdir /ui \
+#    && cd /ui \
+#    && unzip /tmp/webui.zip \
+#    && rm /tmp/webui.zip
 
 RUN apk update && apk add bash curl tini
 
