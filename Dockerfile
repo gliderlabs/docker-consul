@@ -1,19 +1,13 @@
 FROM wehkamp/alpine:3.6
-LABEL container.name="wehkamp/consul:1.0.2"
+LABEL container.name="wehkamp/consul:1.0.3"
 
-ENV CONSUL_VERSION 1.0.2
+ENV CONSUL_VERSION 1.0.3
 
 RUN wget -q -O /tmp/consul.zip https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip \
     && cd /tmp \
     && unzip consul.zip \
     && mv consul /bin/consul \
     && rm /tmp/consul.zip
-
-#RUN wget -q -O /tmp/webui.zip https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_web_ui.zip \
-#    && mkdir /ui \
-#    && cd /ui \
-#    && unzip /tmp/webui.zip \
-#    && rm /tmp/webui.zip
 
 RUN apk update && apk add bash curl tini
 
