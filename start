@@ -5,7 +5,6 @@ if [[ "$CLEANUP" -eq "true" ]]; then
   /bin/sh -c "rm -f /data/checks/*" &&
   /bin/sh -c "rm -f /data/services/*"
 fi
-\
 
 trap "/bin/consul leave" SIGTERM
 
