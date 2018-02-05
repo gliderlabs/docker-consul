@@ -4,6 +4,8 @@ if [[ "$CLEANUP" -eq "true" ]]; then
   /bin/sh -c "rm -f /data/services/*"
 fi
 
+trap "/bin/consul leave" SIGTERM
+
 NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) 
 
 GOMAXPROCS=$NPROC /bin/consul agent -config-dir=/config.d -config-file=/config/consul.json "$@"
