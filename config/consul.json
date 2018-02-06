@@ -4,6 +4,6 @@
 	"ports": {
 		"dns": 8600
 	},
-	"recursors": ["10.200.16.2"],
+	"recursors": ["10.200.16.2", "10.200.32.2", "10.200.0.2"],
 	"disable_update_check": true
 }
