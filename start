@@ -10,4 +10,7 @@ trap "/bin/consul leave" SIGTERM
 
 NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) 
 
-GOMAXPROCS=$NPROC /bin/consul agent -ui -config-dir=/config.d -config-file=/config/consul.json "$@"
+GOMAXPROCS=$NPROC /bin/consul agent -ui -config-dir=/config.d -config-file=/config/consul.json "$@" &
+
+# Wait here, so we can catch signals
+wait $!
