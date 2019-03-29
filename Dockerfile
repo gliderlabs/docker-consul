@@ -1,5 +1,5 @@
 FROM wehkamp/alpine:3.9-1
-LABEL container.name="wehkamp/consul:1.4.4"
+LABEL container.name="wehkamp/consul:1.4.4-2"
 
 ENV CONSUL_VERSION 1.4.4
 
