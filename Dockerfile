@@ -1,7 +1,7 @@
-FROM wehkamp/alpine:3.9-1
-LABEL container.name="wehkamp/consul:1.4.4-2"
+FROM wehkamp/alpine:3.10.3
+LABEL container.name="wehkamp/consul:1.6.2"
 
-ENV CONSUL_VERSION 1.4.4
+ENV CONSUL_VERSION 1.6.2
 
 RUN wget -q -O /tmp/consul.zip https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip \
     && cd /tmp \
