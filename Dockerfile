@@ -1,4 +1,4 @@
-FROM wehkamp/alpine:3.10.3
+FROM 234348545939.dkr.ecr.eu-west-1.amazonaws.com/wehkamp/alpine:3.10.3
 LABEL container.name="wehkamp/consul:1.6.2"
 
 ENV CONSUL_VERSION 1.6.2
