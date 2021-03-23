@@ -1,7 +1,7 @@
-FROM 234348545939.dkr.ecr.eu-west-1.amazonaws.com/wehkamp/alpine:3.10.3
-LABEL container.name="wehkamp/consul:1.6.2"
+FROM 234348545939.dkr.ecr.eu-west-1.amazonaws.com/wehkamp/alpine:3.13.2
+LABEL container.name="wehkamp/consul:1.8.9"
 
-ENV CONSUL_VERSION 1.6.2
+ENV CONSUL_VERSION 1.8.9
 
 RUN wget -q -O /tmp/consul.zip https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip \
     && cd /tmp \
